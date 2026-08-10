@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RANATI — Masterplan 3D</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
+    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
+    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+  },
+  "integrity": {
+    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
+    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+  body { font-family:"Inter",Helvetica,sans-serif; background:#F8F8F6; color:#111; overflow:hidden; }
+  three-d-stage:not(:defined) { visibility:hidden; }
+  three-d-stage { position:absolute; inset:0; width:100%; height:100%; }
+  #ui { position:absolute; inset:0; pointer-events:none; z-index:5; }
+  #zonelist { position:absolute; left:14px; top:14px; display:flex; flex-direction:column; gap:5px; pointer-events:auto; }
+  #zonelist button {
+    appearance:none; text-align:left; cursor:pointer; font:inherit;
+    background:rgba(255,255,255,0.72); backdrop-filter:blur(10px);
+    border:1px solid rgba(17,17,17,0.10); border-radius:999px; padding:0;
+    height:34px; min-width:34px; display:flex; gap:8px; align-items:center; justify-content:flex-start;
+    overflow:hidden; white-space:nowrap; transition:background .3s, border-color .3s, max-width .35s cubic-bezier(0.16,1,0.3,1);
+    max-width:34px;
+  }
+  #zonelist:hover button, #zonelist button:focus-visible, #zonelist button[aria-pressed="true"] { max-width:260px; }
+  #zonelist button:hover { background:#fff; border-color:#B89552; }
+  #zonelist button[aria-pressed="true"] { background:#111; border-color:#111; color:#F8F8F6; }
+  #zonelist button[aria-pressed="true"] .num { color:#B89552; }
+  .num { font-size:10px; letter-spacing:0.14em; color:#B89552; flex-shrink:0; width:34px; text-align:center; }
+  .lbl { font-size:11.5px; font-weight:400; line-height:1.3; padding-right:14px; }
+  #panel {
+    position:absolute; left:14px; bottom:14px; width:290px; padding:16px 18px;
+    background:rgba(17,17,17,0.86); backdrop-filter:blur(16px); color:#F8F8F6;
+    border-radius:16px; pointer-events:auto; opacity:0; transform:translateY(14px);
+    transition:opacity .45s cubic-bezier(0.16,1,0.3,1), transform .45s cubic-bezier(0.16,1,0.3,1);
+  }
+  #panel.on { opacity:1; transform:none; }
+  #panel .n { display:block; font-size:10px; letter-spacing:0.24em; color:#B89552; margin-bottom:9px; }
+  #panel h2 { font-size:16px; font-weight:400; line-height:1.25; margin-bottom:9px; }
+  #panel p { font-size:11.5px; font-weight:300; color:rgba(248,248,246,0.72); line-height:1.55; }
+  #panel button {
+    margin-top:16px; appearance:none; cursor:pointer; font:inherit; font-size:10px; letter-spacing:0.16em;
+    text-transform:uppercase; padding:9px 15px; border-radius:999px; border:1px solid rgba(255,255,255,0.28);
+    background:transparent; color:#F8F8F6; transition:border-color .3s, color .3s;
+  }
+  #panel button:hover { border-color:#B89552; color:#B89552; }
+  body[data-theme="dark"] { background:#0E0E0D; color:#F1F0ED; }
+  body[data-theme="dark"] #zonelist button { background:rgba(28,28,32,0.82); border-color:rgba(255,255,255,0.12); color:#F1F0ED; }
+  body[data-theme="dark"] #zonelist button:hover { background:#1F1F24; border-color:#C9A661; }
+  body[data-theme="dark"] #zonelist button[aria-pressed="true"] { background:#C9A661; border-color:#C9A661; color:#111; }
+  body[data-theme="dark"] #zonelist button[aria-pressed="true"] .num { color:#3a2f14; }
+  body[data-theme="dark"] #hint { background:rgba(28,28,32,0.8); color:#8B8B88; }
+  body[data-theme="dark"] #panel { background:rgba(10,10,10,0.9); }
+  #hint { position:absolute; left:50%; top:14px; transform:translateX(-50%); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:#777; background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); padding:7px 14px; border-radius:999px; opacity:1; transition:opacity .6s; }
+  #hint.fade { opacity:0; }
+  #fs {
+    position:absolute; right:14px; top:14px; pointer-events:auto; appearance:none; cursor:pointer;
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.72); backdrop-filter:blur(10px); color:#111;
+    border:1px solid rgba(17,17,17,0.10); border-radius:999px; transition:background .3s, border-color .3s;
+  }
+  #fs:hover { background:#fff; border-color:#B89552; }
+  body[data-theme="dark"] #fs { background:rgba(28,28,32,0.8); border-color:rgba(255,255,255,0.12); color:#F1F0ED; }
+  @media (max-width: 760px) {
+    #panel { width:calc(100% - 28px); }
+    #hint { display:none; }
+    #zonelist:hover button { max-width:34px; }
+    #zonelist button[aria-pressed="true"] { max-width:240px; }
+  }
+</style>
+</head>
+<body>
+<three-d-stage name="ranati-masterplan" background="#F1EFEA" autorotate></three-d-stage>
+
+<div id="ui">
+  <div id="zonelist"></div>
+  <button type="button" id="fs" aria-label="Layar penuh" title="Layar penuh">
+    <svg id="fs-open" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M1 5V1h4M10 1h4v4M14 10v4h-4M5 14H1v-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
+    <svg id="fs-close" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true" style="display:none"><path d="M5 1v4H1M10 1v4h4M14 10h-4v4M1 10h4v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
+  </button>
+  <div id="hint">Seret memutar · gulir zoom · klik bangunan</div>
+  <aside id="panel">
+    <span class="n"></span>
+    <h2></h2>
+    <p></p>
+    <button type="button" id="reset">Tampilan Penuh</button>
+  </aside>
+</div>
+
+<script src="./three-d-stage.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { buildMasterplan, ZONES, FRAME } from './masterplan-model.js';
+
+const stage = document.querySelector('three-d-stage');
+await stage.ready;
+
+const model = buildMasterplan();
+stage.setObject(model);
+
+const camera = stage._camera, controls = stage._controls, canvas = stage._renderer.domElement;
+const zones = model.userData.zones;
+// reframe on the land itself — the sea plane must not drive the default framing
+const fc = new THREE.Vector3().fromArray(FRAME.center).add(model.position);
+const dist = (FRAME.radius / Math.tan((camera.fov * Math.PI) / 360)) * 0.92;
+camera.position.copy(fc).add(new THREE.Vector3().fromArray(FRAME.dir).normalize().multiplyScalar(dist));
+camera.near = dist / 200;
+camera.far = dist * 40;
+camera.updateProjectionMatrix();
+controls.target.copy(fc);
+controls.maxDistance = dist * 1.9;
+controls.minDistance = 180;
+controls.maxPolarAngle = Math.PI * 0.49;
+controls.update();
+const home = { pos: camera.position.clone(), tgt: controls.target.clone() };
+
+// tighten the sun's shadow frustum onto the developed area (the wide sea plane
+// otherwise blows it out to a low-resolution, visibly clipped map)
+const key = stage._key;
+if (key && key.shadow) {
+  key.position.set(-1700, 2400, -1500);
+  key.target.position.copy(fc);
+  key.target.updateMatrixWorld();
+  const sc = key.shadow.camera;
+  sc.left = -2300; sc.right = 2300; sc.top = 2300; sc.bottom = -2300;
+  sc.near = 200; sc.far = 9000;
+  sc.updateProjectionMatrix();
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.bias = -0.0007;
+  key.shadow.needsUpdate = true;
+  key.intensity = key.intensity * 1.45;
+}
+stage._scene.traverse((o) => {
+  if (o.isHemisphereLight) o.intensity = o.intensity * 0.72;
+});
+
+const list = document.getElementById('zonelist');
+const panel = document.getElementById('panel');
+ZONES.forEach((z, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = '<span class="num">' + z.n + '</span><span class="lbl">' + z.title + '</span>';
+  b.addEventListener('click', () => select(i));
+  b.addEventListener('pointerenter', () => hover(i));
+  b.addEventListener('pointerleave', () => hover(active));
+  list.appendChild(b);
+});
+
+let active = null;
+function paint(lit) {
+  zones.forEach((z, i) => {
+    const on = lit === null || lit === i;
+    z.userData.materials.forEach((m) => {
+      m.emissive.setHex(lit === i ? 0xb89552 : 0x000000);
+      m.emissiveIntensity = lit === i ? 0.28 : 0;
+      m.opacity = on ? 1 : 0.34;
+      m.transparent = !on;
+      m.needsUpdate = true;
+    });
+  });
+}
+function hover(i) { paint(i); }
+
+let tween = null;
+function flyTo(at, r) {
+  const tgt = new THREE.Vector3(at[0] - model.position.x * 0, at[1], at[2]).add(model.position);
+  const dir = new THREE.Vector3(0.55, 0.5, -0.85).normalize().multiplyScalar(r);
+  tween = { t0: performance.now(), dur: 1100, p0: camera.position.clone(), t0v: controls.target.clone(), p1: tgt.clone().add(dir), t1v: tgt };
+}
+function select(i) {
+  active = i;
+  paint(i);
+  [...list.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
+  const z = ZONES[i];
+  panel.querySelector('.n').textContent = 'ZONA ' + z.n;
+  panel.querySelector('h2').textContent = z.title;
+  panel.querySelector('p').textContent = z.meta;
+  panel.classList.add('on');
+  flyTo(z.at, z.r);
+}
+function reset() {
+  active = null;
+  paint(null);
+  [...list.children].forEach((b) => b.setAttribute('aria-pressed', 'false'));
+  panel.classList.remove('on');
+  tween = { t0: performance.now(), dur: 1000, p0: camera.position.clone(), t0v: controls.target.clone(), p1: home.pos.clone(), t1v: home.tgt.clone() };
+}
+document.getElementById('reset').addEventListener('click', reset);
+
+/* Fullscreen: native API when allowed; embedded pages ask the parent instead */
+const fsBtn = document.getElementById('fs');
+const embedded = window.parent !== window;
+function setFsIcon(on) {
+  document.getElementById('fs-open').style.display = on ? 'none' : 'block';
+  document.getElementById('fs-close').style.display = on ? 'block' : 'none';
+  fsBtn.setAttribute('aria-label', on ? 'Keluar layar penuh' : 'Layar penuh');
+}
+let cssFs = false; // mirror of the HOST's authoritative state (icon only)
+fsBtn.addEventListener('click', async () => {
+  if (embedded) {
+    parent.postMessage({ ranati: 'fullscreen-toggle' }, '*');
+    return;
+  }
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch (err) {}
+});
+addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && cssFs && embedded) parent.postMessage({ ranati: 'fullscreen-toggle' }, '*');
+});
+document.addEventListener('fullscreenchange', () => setFsIcon(!!document.fullscreenElement));
+addEventListener('message', (e) => {
+  if (e.data && e.data.ranati === 'fullscreen-state') { cssFs = !!e.data.on; setFsIcon(cssFs); }
+});
+
+const hintEl = document.getElementById('hint');
+setTimeout(() => hintEl.classList.add('fade'), 5000);
+canvas.addEventListener('pointerdown', () => hintEl.classList.add('fade'), { once: true });
+
+const q = parseInt(new URLSearchParams(location.search).get('zona'), 10);
+if (q >= 1 && q <= 6) setTimeout(() => select(q - 1), 500);
+
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+function pick(e) {
+  const r = canvas.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObject(model, true)[0];
+  if (!hit) return null;
+  let o = hit.object;
+  while (o && o.userData.zone === undefined) o = o.parent;
+  return o ? o.userData.zone : null;
+}
+let down = null;
+canvas.addEventListener('pointerdown', (e) => (down = { x: e.clientX, y: e.clientY }));
+canvas.addEventListener('pointerup', (e) => {
+  if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+  const i = pick(e);
+  if (i === null) reset(); else select(i);
+});
+canvas.addEventListener('pointermove', (e) => {
+  const i = pick(e);
+  canvas.style.cursor = i === null ? '' : 'pointer';
+  if (active === null) paint(i);
+});
+
+const wheel = model.userData.wheel;
+function loop(t) {
+  if (wheel) wheel.rotation.z = t * 0.00016;
+  if (tween) {
+    const p = Math.min(1, (performance.now() - tween.t0) / tween.dur);
+    const e = 1 - Math.pow(1 - p, 3);
+    camera.position.lerpVectors(tween.p0, tween.p1, e);
+    controls.target.lerpVectors(tween.t0v, tween.t1v, e);
+    controls.update();
+    if (p >= 1) tween = null;
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* Theme — the maquette follows the host page (postMessage) or ?theme=dark */
+const LIGHT = { bg: 0xf1efea, land: 0xd5cbb6, water: 0x2b5f66, stone: 0xf2efe8, green: 0x7d9068, gold: 0xb89552, roof: 0xb0714f, palm: 0x5d7a4d, sand: 0xe9dec2, rock: 0xa8a49c, glass: 0x87a6ab, metal: 0x4c4f52, marking: 0xf3f2ec, rough: 0.42, metal2: 0.18 };
+const DARK  = { bg: 0x0b0b0c, land: 0x413d38, water: 0x102b31, stone: 0x8f8d88, green: 0x4c5742, gold: 0xc9a661, roof: 0x7e5038, palm: 0x3c4a34, sand: 0x6e675a, rock: 0x5f5c56, glass: 0x3a5257, metal: 0x33363a, marking: 0x9a9992, rough: 0.72, metal2: 0.04 };
+const mats = new Map();
+model.traverse((o) => {
+  if (!o.isMesh || !o.material || !o.material.name) return;
+  const base = o.material.name.split('_z')[0];
+  if (!mats.has(base)) mats.set(base, []);
+  mats.get(base).push(o.material);
+});
+const hemi = [];
+stage._scene.traverse((o) => { if (o.isHemisphereLight) hemi.push(o); });
+const baseKey = key ? key.intensity : 0;
+const baseHemi = hemi.map((l) => l.intensity);
+
+function setTheme(dark) {
+  const t = dark ? DARK : LIGHT;
+  document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+  stage._scene.background = new THREE.Color(t.bg);
+  document.body.style.background = '#' + new THREE.Color(t.bg).getHexString();
+  ['land', 'water', 'stone', 'green', 'gold', 'roof', 'palm', 'sand', 'rock', 'glass', 'metal', 'marking'].forEach((n) => {
+    (mats.get(n) || []).forEach((m) => { m.color.setHex(t[n]); m.needsUpdate = true; });
+  });
+  (mats.get('water') || []).forEach((m) => { m.roughness = t.rough; m.metalness = t.metal2; m.needsUpdate = true; });
+  if (key) key.intensity = dark ? baseKey * 0.62 : baseKey;
+  hemi.forEach((l, i) => { l.intensity = dark ? baseHemi[i] * 0.55 : baseHemi[i]; });
+}
+if (new URLSearchParams(location.search).get('theme') === 'dark') setTheme(true);
+addEventListener('message', (e) => {
+  if (e.data && e.data.ranati === 'theme') setTheme(!!e.data.dark);
+});
+
+// tell the embedding page we are live
+parent.postMessage({ ranati: 'model-ready' }, '*');
+</script>
+</body>
+</html>

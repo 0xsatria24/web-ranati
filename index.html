@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RANATI — Destinasi Terpadu Masa Depan Belitung</title>
+<meta name="description" content="RANATI: kawasan destinasi terpadu premium ±714 hektar di Belitung — marina superyacht, hunian eksklusif, agro-tourism, dan pusat rekreasi kelas dunia. Peluang investasi land developer.">
+<meta name="theme-color" content="#111111">
+<link rel="canonical" href="https://ranatiweb.vercel.app/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111111'/%3E%3Ctext x='16' y='22' font-size='17' text-anchor='middle' fill='%23B89552' font-family='Arial,sans-serif' font-weight='700'%3ER%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RANATI">
+<meta property="og:title" content="RANATI — Destinasi Terpadu Masa Depan Belitung">
+<meta property="og:description" content="Kawasan destinasi terpadu premium ±714 hektar di Belitung — marina superyacht, hunian eksklusif, dan pusat rekreasi kelas dunia.">
+<meta property="og:image" content="https://ranatiweb.vercel.app/assets/hero-marina-sunset.jpg">
+<meta property="og:url" content="https://ranatiweb.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RANATI — Destinasi Terpadu Masa Depan Belitung">
+<meta name="twitter:description" content="Kawasan destinasi terpadu premium ±714 hektar di Belitung.">
+<meta name="twitter:image" content="https://ranatiweb.vercel.app/assets/hero-marina-sunset.jpg">
+<script src="./support.js"></script>
+<script src="./site-content.js"></script>
+<script src="./contact.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; overflow-x:hidden; max-width:100%; }
+  body { background:#F8F8F6; font-family:"Inter",Helvetica,sans-serif; color:#111111; font-weight:400; font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  img { display:block; width:100%; height:100%; object-fit:cover; }
+  a { text-decoration:none; color:inherit; }
+  a:hover { color:#B89552; }
+  ol, ul { list-style:none; }
+  svg { display:block; }
+  ::selection { background:#B89552; color:#F8F8F6; }
+  @keyframes cueSlide { 0% { transform:translateY(-100%); } 100% { transform:translateY(100%); } }
+  @keyframes floaty { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-9px); } }
+  /* Animasi reveal saat scroll dinonaktifkan — elemen langsung tampil */
+  [data-reveal], [data-reveal].is-in { opacity:1; transform:none; transition:none; }
+  /* Indikator "Gulir" dihapus di semua ukuran layar */
+  [data-cue] { display:none !important; }
+  /* Elemen dekoratif (parallax/tilt/overlay/statistik) tak boleh menghalangi klik tombol.
+     Semuanya murni visual & ditransformasi 3D, jadi jangan tangkap pointer. */
+  [data-scene], [data-scene-inner], [data-depth], [data-tilt], .stats-band { pointer-events: none; }
+  a, button { -webkit-tap-highlight-color: transparent; }
+  /* Di perangkat sentuh: parallax/tilt dimatikan (lihat tick di JS), jadi lepas promosi
+     layer GPU agar hemat memori & mulus di HP kelas bawah. */
+  @media (hover: none), (pointer: coarse) {
+    [data-tilt], [data-scene-inner], [data-depth] { will-change: auto !important; }
+  }
+  /* Kembalikan interaksi untuk konten yang memang perlu diklik/dibaca di dalamnya */
+  [data-model-veil], [data-model-release] { pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce) { [data-reveal] { opacity:1; transform:none; transition:none; } }
+
+  /* ===== Stats band (3 angka) — styling dasar ===== */
+  .stats-band__grid { display:grid; grid-template-columns:repeat(3,1fr); align-items:center; gap:32px 0; }
+  .stats-band__item { text-align:center; }
+  .stats-band__value { font-size:clamp(34px,4.4vw,44px); font-weight:300; letter-spacing:-0.01em; margin-bottom:10px; }
+  .stats-band__label { font-size:13px; color:#777777; letter-spacing:0.03em; }
+
+  /* ============ RESPONSIVE / MOBILE ============ */
+  @media (max-width: 900px) {
+    /* Header: sembunyikan nav desktop, tampilkan tombol menu */
+    [data-desktop-nav] { display:none !important; }
+    [data-menu-toggle] { display:flex !important; }
+
+    /* Semua grid dua-kolom -> satu kolom */
+    [data-grid="38 62"],
+    [data-grid="58 42"],
+    [data-grid="44 56"],
+    [data-grid="plan"] {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+    [data-grid] [data-col="text"] { max-width:100% !important; }
+
+    /* Hero: tinggi menyesuaikan, sembunyikan indikator gulir */
+    [data-grid="38 62"] { min-height:auto !important; padding-top:120px !important; padding-bottom:56px !important; }
+    [data-grid="38 62"] [data-col="media"] { height:52vh !important; }
+    [data-cue] { display:none !important; }
+
+    /* Stats jangan menimpa tombol hero di mobile (hapus overlap -80px) */
+    .stats-band { margin-top:24px !important; }
+
+    /* Gambar proyek yang terlalu tinggi -> proporsional di mobile */
+    [data-grid="58 42"] [data-col="media"] { height:320px !important; }
+
+    /* Footer nav jangan berjejer melebihi layar */
+    footer nav[aria-label="Footer"] { flex-wrap:wrap; gap:14px 24px !important; }
+
+    /* Aside masterplan jangan sticky saat menumpuk */
+    [data-grid="plan"] aside { position:static !important; }
+  }
+
+  @media (max-width: 600px) {
+    .stats-band__grid { grid-template-columns:1fr; gap:26px 0; text-align:center; }
+    .stats-band__item { text-align:center; }
+
+    /* Grid auto-fit dengan kolom minimum lebar -> paksa 1 kolom agar tak melebihi layar */
+    [style*="minmax(360px"],
+    [style*="minmax(320px"],
+    [style*="minmax(300px"],
+    [style*="minmax(280px"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+</helmet>
+
+<div style="position:relative">
+
+  <header data-animate="header" style="position:fixed; top:0; left:0; width:100%; padding:clamp(20px,2.4vw,30px) clamp(24px,4.5vw,70px); display:flex; justify-content:space-between; align-items:center; z-index:200; mix-blend-mode:difference; pointer-events:none">
+    <a href="#top" onClick="{{ goHome }}" style="font-size:22px; letter-spacing:8px; font-weight:600; color:#ffffff; pointer-events:auto">RANATI</a>
+    <div style="display:flex; align-items:center; gap:clamp(18px,2.4vw,34px); pointer-events:auto">
+    <nav data-desktop-nav="true" aria-label="Primary" style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px clamp(18px,2.4vw,38px)">
+      <a href="#top" onClick="{{ goHome }}" data-nav="home" style="font-size:13px; font-weight:500; letter-spacing:0.04em; color:#ffffff; opacity:1; transition:opacity .3s">Beranda</a>
+      <a href="#top" onClick="{{ goPlan }}" data-nav="plan" style="font-size:13px; font-weight:500; letter-spacing:0.04em; color:#ffffff; opacity:0.62; transition:opacity .3s">Masterplan</a>
+      <a href="#top" onClick="{{ goZone }}" data-nav="zone" style="font-size:13px; font-weight:500; letter-spacing:0.04em; color:#ffffff; opacity:0.62; transition:opacity .3s">Zona</a>
+      <a href="#investasi" onClick="{{ goInvest }}" style="font-size:13px; font-weight:500; letter-spacing:0.04em; color:#ffffff; opacity:0.62; transition:opacity .3s">Investasi</a>
+      <a href="#berita" onClick="{{ goBerita }}" style="font-size:13px; font-weight:500; letter-spacing:0.04em; color:#ffffff; opacity:0.62; transition:opacity .3s">Berita</a>
+      <a href="#kontak" style="font-size:13px; font-weight:500; letter-spacing:0.04em; color:#ffffff; opacity:0.62; transition:opacity .3s">Kontak</a>
+    </nav>
+    <button data-theme-toggle="true" type="button" onClick="{{ toggleTheme }}" aria-label="Ganti mode gelap" aria-pressed="false" style="width:42px; height:42px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:999px; border:1px solid rgba(255,255,255,0.4); background:transparent; color:#ffffff; cursor:pointer; transition:border-color .3s">
+      <svg data-theme-icon="moon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.2 10.1A5.6 5.6 0 0 1 5.9 2.8 5.6 5.6 0 1 0 13.2 10.1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+      <svg data-theme-icon="sun" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="display:none"><circle cx="8" cy="8" r="3.1" stroke="currentColor" stroke-width="1.2"></circle><path d="M8 1v1.7M8 13.3V15M1 8h1.7M13.3 8H15M3.1 3.1l1.2 1.2M11.7 11.7l1.2 1.2M12.9 3.1l-1.2 1.2M4.3 11.7l-1.2 1.2" stroke="currentColor" stroke-width="1.2"></path></svg>
+    </button>
+    <button data-menu-toggle="true" type="button" onClick="{{ toggleMenu }}" aria-label="Buka menu" aria-expanded="false" style="display:none; width:44px; height:44px; flex-shrink:0; align-items:center; justify-content:center; border-radius:999px; border:1px solid rgba(255,255,255,0.4); background:transparent; color:#ffffff; cursor:pointer">
+      <svg data-menu-icon="open" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M2 4.5H16M2 9H16M2 13.5H16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>
+      <svg data-menu-icon="close" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true" style="display:none"><path d="M4 4L14 14M14 4L4 14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>
+    </button>
+    </div>
+  </header>
+
+  <nav data-mobile-menu="true" aria-label="Menu seluler" style="position:fixed; inset:0; z-index:150; display:none; flex-direction:column; justify-content:center; gap:8px; padding:100px 32px 48px; background:rgba(17,17,17,0.97); backdrop-filter:blur(18px)">
+    <a href="#top" onClick="{{ goHomeMenu }}" style="font-size:30px; font-weight:300; letter-spacing:-0.01em; color:#F8F8F6; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.10)">Beranda</a>
+    <a href="#top" onClick="{{ goPlanMenu }}" style="font-size:30px; font-weight:300; letter-spacing:-0.01em; color:#F8F8F6; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.10)">Masterplan</a>
+    <a href="#top" onClick="{{ goZoneMenu }}" style="font-size:30px; font-weight:300; letter-spacing:-0.01em; color:#F8F8F6; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.10)">Zona</a>
+    <a href="#investasi" onClick="{{ goInvest }}" style="font-size:30px; font-weight:300; letter-spacing:-0.01em; color:#F8F8F6; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.10)">Investasi</a>
+    <a href="#berita" onClick="{{ goBerita }}" style="font-size:30px; font-weight:300; letter-spacing:-0.01em; color:#F8F8F6; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.10)">Berita</a>
+    <a href="#kontak" onClick="{{ closeMenu }}" style="font-size:30px; font-weight:300; letter-spacing:-0.01em; color:#F8F8F6; padding:13px 0">Kontak</a>
+    <span style="margin-top:28px; font-size:11px; letter-spacing:0.28em; text-transform:uppercase; color:#B89552">RANATI — Belitung</span>
+  </nav>
+
+  <main ref="{{ homeRef }}" data-screen-label="Home">
+
+    <section data-grid="38 62" data-animate="hero" style="position:relative; display:grid; grid-template-columns:38% 62%; align-items:center; gap:clamp(40px,5vw,60px); min-height:100vh; padding:clamp(120px,14vh,150px) clamp(24px,4.5vw,70px) 0">
+      <div data-col="text" style="max-width:520px; position:relative; z-index:3">
+        <span data-cms="hero_kicker" data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Destinasi Terpadu</span>
+        <h1 data-cms="hero_title" data-cms-html style="font-size:clamp(48px,6.2vw,84px); font-weight:300; line-height:0.98; margin:8px 0 28px; letter-spacing:-0.02em">
+          <span data-reveal="true" style="display:block">Destinasi</span>
+          <span data-reveal="true" style="display:block">Terpadu</span>
+          <span data-reveal="true" style="display:block">Masa Depan</span>
+          <span data-reveal="true" style="display:block; color:#B89552">Belitung</span>
+        </h1>
+        <p data-cms="hero_body" data-reveal="true" style="font-size:17px; font-weight:300; color:#777777; max-width:400px; margin-bottom:40px; line-height:1.65; text-wrap:pretty">Lebih dari sekadar resort — ekosistem premium yang merayakan alam, budaya, inovasi, dan komunitas dalam satu destinasi terintegrasi kelas dunia. ±714 hektar, satu visi.</p>
+        <a href="#top" onClick="{{ goPlan }}" data-reveal="true" style="display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; padding:18px 30px; border-radius:999px; background:#111111; color:#F8F8F6; transition:background .35s cubic-bezier(0.16,1,0.3,1)" style-hover="background:#B89552; color:#111111">
+          <span data-cms="hero_cta">Jelajahi Masterplan</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+        </a>
+      </div>
+
+      <div data-col="media" data-scene="hero" style="position:relative; height:78vh; perspective:1400px; perspective-origin:50% 50%">
+        <div data-scene-inner="true" style="position:relative; width:100%; height:100%; border-radius:28px; overflow:hidden; background:#E7E7E7; transform-style:preserve-3d; will-change:transform; box-shadow:0 60px 120px -60px rgba(17,17,17,0.45)">
+          <div data-depth="0.30" style="position:absolute; inset:-8%; will-change:transform">
+            <img loading="eager" fetchpriority="high" decoding="async" src="assets/hero-marina-sunset.jpg" data-cms="hero_media" data-cms-default="assets/hero-marina-sunset.jpg" alt="Marina Bay Ranati saat matahari terbenam" style="filter:saturate(0.74) contrast(1.04) sepia(0.07) brightness(1.02)">
+          </div>
+          <div data-depth="0.55" style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.52) 0%, rgba(17,17,17,0.06) 45%, rgba(248,248,246,0.10) 100%); pointer-events:none"></div>
+          <div data-depth="1.5" style="position:absolute; left:38px; top:44px; display:flex; flex-direction:column; gap:12px; align-items:flex-start; will-change:transform">
+            <span data-cms="hero_badge1" style="display:inline-flex; align-items:center; gap:10px; padding:11px 18px; border-radius:999px; background:rgba(248,248,246,0.86); backdrop-filter:blur(14px); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#111111; box-shadow:0 18px 40px -22px rgba(17,17,17,0.7)">Marina Bay · 120 Ha</span>
+            <span data-cms="hero_badge2" style="display:inline-flex; align-items:center; gap:10px; padding:11px 18px; border-radius:999px; background:rgba(184,149,82,0.92); backdrop-filter:blur(14px); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#111111; box-shadow:0 18px 40px -22px rgba(17,17,17,0.7)">Superyacht Harbour</span>
+          </div>
+          <div data-depth="2.2" style="position:absolute; right:38px; bottom:38px; padding:22px 26px; border-radius:20px; background:rgba(17,17,17,0.55); backdrop-filter:blur(18px); color:#F8F8F6; max-width:270px; will-change:transform; box-shadow:0 24px 60px -30px rgba(0,0,0,0.9)">
+            <span data-cms="hero_note_title" style="display:block; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#B89552; margin-bottom:8px">Kabupaten Belitung</span>
+            <span data-cms="hero_note_body" style="display:block; font-size:14px; font-weight:300; line-height:1.5; color:rgba(248,248,246,0.82)">Lanskap alam premium, keberlanjutan ekologi, dan konektivitas modern.</span>
+          </div>
+          <div style="position:absolute; inset:0; border-radius:28px; box-shadow:inset 0 0 120px 30px rgba(17,17,17,0.22); pointer-events:none"></div>
+        </div>
+      </div>
+
+      <div data-cue="true" aria-hidden="true" style="position:absolute; left:clamp(24px,4.5vw,70px); bottom:48px; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <span style="font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#777777; writing-mode:vertical-rl">Gulir</span>
+        <div style="width:1px; height:60px; background:#E7E7E7; position:relative; overflow:hidden">
+          <div style="position:absolute; inset:0; background:#B89552; animation:cueSlide 1.8s ease-in-out infinite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section data-animate="stats" class="stats-band" style="padding:0 clamp(24px,4.5vw,70px); margin-top:-80px; position:relative; z-index:10">
+      <dl data-grid="stats" data-reveal="true" class="stats-band__grid" style="max-width:1600px; margin:0 auto; background:#FFFFFF; border:1px solid #E7E7E7; border-radius:28px; box-shadow:0 30px 60px -30px rgba(17,17,17,0.10); padding:clamp(36px,4vw,56px) clamp(28px,4vw,60px)">
+        <div class="stats-band__item">
+          <dt data-cms="stat1_value" data-count="714" class="stats-band__value">714</dt>
+          <dd data-cms="stat1_label" class="stats-band__label">Hektar Lahan Strategis</dd>
+        </div>
+        <div class="stats-band__item">
+          <dt data-cms="stat2_value" data-count="120" class="stats-band__value">120</dt>
+          <dd data-cms="stat2_label" class="stats-band__label">Hektar Marina Bay</dd>
+        </div>
+        <div class="stats-band__item">
+          <dt data-cms="stat3_value" data-count="6" class="stats-band__value">6</dt>
+          <dd data-cms="stat3_label" class="stats-band__label">Zona Utama</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section data-grid="58 42" data-animate="project" style="max-width:1600px; margin:0 auto; padding:clamp(120px,14vw,200px) clamp(24px,4.5vw,70px) clamp(110px,12vw,180px); display:grid; grid-template-columns:58% 42%; gap:clamp(48px,6vw,90px); align-items:center">
+      <div data-col="media" data-tilt="true" data-reveal="true" style="height:560px; border-radius:28px; overflow:hidden; background:#E7E7E7; perspective:1200px; will-change:transform">
+        <img loading="lazy" decoding="async" src="assets/zone1-marina.jpg" data-cms="project_media" data-cms-default="assets/zone1-marina.jpg" alt="Marina Bay — dermaga superyacht" style="filter:saturate(0.76) contrast(1.03) sepia(0.06); transform:scale(1.04)">
+      </div>
+      <div data-col="text" style="max-width:430px">
+        <span data-cms="project_kicker" data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Proyek Unggulan</span>
+        <h2 data-cms="project_title" data-reveal="true" style="font-size:clamp(34px,4vw,56px); font-weight:300; line-height:1.08; letter-spacing:-0.01em">Marina Bay</h2>
+        <p data-cms="project_body" data-reveal="true" style="max-width:480px; font-size:17px; font-weight:300; color:#777777; margin-top:20px; line-height:1.65; text-wrap:pretty">Detak jantung bahari PT Ranati. Fasilitas bersandar kelas dunia untuk superyacht, kompleks komersial terapung, Culinary Market, Art Village, dan Convention Center megah.</p>
+        <ul data-reveal="true" style="display:flex; flex-direction:column; gap:12px; margin:32px 0 40px">
+          <li style="display:flex; gap:14px; align-items:baseline; font-size:15px; font-weight:300; color:#111111"><span style="font-size:11px; color:#B89552; letter-spacing:0.1em">D/E</span>Marina superyacht &amp; apartemen tepi laut</li>
+          <li style="display:flex; gap:14px; align-items:baseline; font-size:15px; font-weight:300; color:#111111"><span style="font-size:11px; color:#B89552; letter-spacing:0.1em">F</span>Kompleks komersial terapung premium</li>
+          <li style="display:flex; gap:14px; align-items:baseline; font-size:15px; font-weight:300; color:#111111"><span style="font-size:11px; color:#B89552; letter-spacing:0.1em">P</span>Convention Center berkelas internasional</li>
+          <li style="display:flex; gap:14px; align-items:baseline; font-size:15px; font-weight:300; color:#111111"><span style="font-size:11px; color:#B89552; letter-spacing:0.1em">Q</span>Culinary Market &amp; Art Village</li>
+        </ul>
+        <a href="#top" onClick="{{ goZone }}" data-reveal="true" style="display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; padding:18px 30px; border-radius:999px; background:transparent; color:#111111; border:1px solid #E7E7E7; transition:border-color .35s" style-hover="border-color:#111111; color:#111111">
+          <span data-cms="project_cta">Lihat Zona 1</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+        </a>
+      </div>
+    </section>
+
+    <section data-animate="masterplan" style="padding:0 clamp(24px,4.5vw,70px) clamp(110px,12vw,180px); max-width:1600px; margin:0 auto">
+      <div style="margin-bottom:48px">
+        <span data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Peta Induk</span>
+        <h2 data-reveal="true" style="font-size:clamp(34px,4vw,56px); font-weight:300; line-height:1.08; letter-spacing:-0.01em">Enam Zona. Satu Destinasi.</h2>
+      </div>
+      <div data-reveal="true" style="position:relative; height:clamp(420px,52vw,700px); border-radius:28px; overflow:hidden; background:#F1EFEA; border:1px solid #E7E7E7; box-shadow:0 50px 100px -60px rgba(17,17,17,0.35)">
+        <iframe data-model="home" allow="fullscreen" src="masterplan-3d.html?v=3" title="Model 3D masterplan RANATI" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; border:0; pointer-events:none"></iframe>
+        <div data-model-veil="home" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; background:rgba(241,239,234,0.55); backdrop-filter:blur(2px); cursor:pointer; transition:opacity .5s">
+          <span style="font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#B89552">Model 3D Interaktif</span>
+          <span style="font-size:clamp(22px,2.4vw,34px); font-weight:300; letter-spacing:-0.01em; color:#111111; text-align:center; max-width:520px; text-wrap:pretty">Klik untuk memutar maket ±714 hektar</span>
+          <span style="display:inline-flex; align-items:center; gap:10px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; padding:15px 26px; border-radius:999px; background:#111111; color:#F8F8F6">Aktifkan Kontrol 3D</span>
+        </div>
+        <button data-model-release="home" style="position:absolute; right:14px; top:64px; display:none; align-items:center; gap:8px; font:inherit; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; padding:11px 18px; border-radius:999px; border:1px solid rgba(17,17,17,0.14); background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); color:#111111; cursor:pointer; z-index:4">Lepas Kontrol</button>
+      </div>
+    </section>
+
+    <section data-animate="zones" style="padding:0 0 clamp(110px,12vw,180px); overflow:hidden">
+      <div style="max-width:1600px; margin:0 auto; padding:0 clamp(24px,4.5vw,70px); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:32px 40px; margin-bottom:56px">
+        <div>
+          <span data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Jelajahi</span>
+          <h2 data-reveal="true" style="font-size:clamp(34px,4vw,56px); font-weight:300; line-height:1.08; letter-spacing:-0.01em">Enam Zona Utama</h2>
+        </div>
+        <div data-reveal="true" style="display:flex; align-items:center; gap:14px">
+          <span style="font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:#777777; margin-right:8px">Seret untuk memutar</span>
+          <button onClick="{{ ringPrev }}" aria-label="Zona sebelumnya" style="width:52px; height:52px; border-radius:999px; border:1px solid #E7E7E7; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#111111; transition:border-color .35s, background .35s" style-hover="border-color:#111111; background:#111111; color:#F8F8F6">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8H3M3 8L7 4M3 8L7 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+          </button>
+          <button onClick="{{ ringNext }}" aria-label="Zona berikutnya" style="width:52px; height:52px; border-radius:999px; border:1px solid #E7E7E7; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#111111; transition:border-color .35s, background .35s" style-hover="border-color:#111111; background:#111111; color:#F8F8F6">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div data-ring-stage="true" style="position:relative; height:clamp(480px,58vw,600px); perspective:1800px; perspective-origin:50% 45%; cursor:grab; user-select:none; touch-action:pan-y">
+        <div data-ring="true" style="position:absolute; top:50%; left:50%; width:0; height:0; transform-style:preserve-3d; will-change:transform">
+          <article data-ring-item="0" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+            <img loading="lazy" decoding="async" src="assets/zone1-marina.jpg" data-cms="home_zone1_media" data-cms-default="assets/zone1-marina.jpg" alt="Zona 1 Marina Bay" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
+            <div style="position:absolute; left:30px; right:30px; bottom:30px; color:#F8F8F6">
+              <span data-cms="home_zone1_label" style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:10px">ZONA 01</span>
+              <h3 data-cms="home_zone1_title" style="font-size:26px; font-weight:400; letter-spacing:-0.01em; line-height:1.2">Marina Bay &amp; Pusat Bahari Dunia</h3>
+              <p data-cms="home_zone1_desc" style="font-size:13px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:10px">120 Ha marina · Superyacht · Floating Commercial · Waterfront Hotels</p>
+            </div>
+          </article>
+          <article data-ring-item="1" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+            <img loading="lazy" decoding="async" src="assets/zone2-residence.jpg" data-cms="home_zone2_media" data-cms-default="assets/zone2-residence.jpg" alt="Zona 2 Hunian Eksklusif" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
+            <div style="position:absolute; left:30px; right:30px; bottom:30px; color:#F8F8F6">
+              <span data-cms="home_zone2_label" style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:10px">ZONA 02</span>
+              <h3 data-cms="home_zone2_title" style="font-size:26px; font-weight:400; letter-spacing:-0.01em; line-height:1.2">Hunian Eksklusif &amp; Resor Pantai</h3>
+              <p data-cms="home_zone2_desc" style="font-size:13px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:10px">Exclusive Villas · Saphire Residence · Resor 4–5 Star · Pantai Laskar Pelangi</p>
+            </div>
+          </article>
+          <article data-ring-item="2" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+            <img loading="lazy" decoding="async" src="assets/zone3-themepark.jpg" data-cms="home_zone3_media" data-cms-default="assets/zone3-themepark.jpg" alt="Zona 3 Rekreasi" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
+            <div style="position:absolute; left:30px; right:30px; bottom:30px; color:#F8F8F6">
+              <span data-cms="home_zone3_label" style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:10px">ZONA 03</span>
+              <h3 data-cms="home_zone3_title" style="font-size:26px; font-weight:400; letter-spacing:-0.01em; line-height:1.2">Pusat Rekreasi &amp; Hiburan Terintegrasi</h3>
+              <p data-cms="home_zone3_desc" style="font-size:13px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:10px">Themepark (H) · Botanical Garden (B) · Sport Center (I)</p>
+            </div>
+          </article>
+          <article data-ring-item="3" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+            <img loading="lazy" decoding="async" src="assets/zone4-market.jpg" data-cms="home_zone4_media" data-cms-default="assets/zone4-market.jpg" alt="Zona 4 Pasar Seni" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
+            <div style="position:absolute; left:30px; right:30px; bottom:30px; color:#F8F8F6">
+              <span data-cms="home_zone4_label" style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:10px">ZONA 04</span>
+              <h3 data-cms="home_zone4_title" style="font-size:26px; font-weight:400; letter-spacing:-0.01em; line-height:1.2">Traditional Market &amp; Art Village</h3>
+              <p data-cms="home_zone4_desc" style="font-size:13px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:10px">Authentic Market (Q) · Convention Center (P) · Art, Culture &amp; Culinary</p>
+            </div>
+          </article>
+          <article data-ring-item="4" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+            <img loading="lazy" decoding="async" src="assets/zone5-agro.jpg" data-cms="home_zone5_media" data-cms-default="assets/zone5-agro.jpg" alt="Zona 5 Agro-Tourism" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
+            <div style="position:absolute; left:30px; right:30px; bottom:30px; color:#F8F8F6">
+              <span data-cms="home_zone5_label" style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:10px">ZONA 05</span>
+              <h3 data-cms="home_zone5_title" style="font-size:26px; font-weight:400; letter-spacing:-0.01em; line-height:1.2">Agro-Tourism &amp; Jasa Inovatif</h3>
+              <p data-cms="home_zone5_desc" style="font-size:13px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:10px">Organic Agro (J) · Nursing Village (C) · Repair Hub · Adventure Canal</p>
+            </div>
+          </article>
+          <article data-ring-item="5" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+            <img loading="lazy" decoding="async" src="assets/zone6-community.jpg" data-cms="home_zone6_media" data-cms-default="assets/zone6-community.jpg" alt="Zona 6 Komunitas" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
+            <div style="position:absolute; left:30px; right:30px; bottom:30px; color:#F8F8F6">
+              <span data-cms="home_zone6_label" style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:10px">ZONA 06</span>
+              <h3 data-cms="home_zone6_title" style="font-size:26px; font-weight:400; letter-spacing:-0.01em; line-height:1.2">Komunitas &amp; Hunian Terintegrasi</h3>
+              <p data-cms="home_zone6_desc" style="font-size:13px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:10px">Mosque (M) · Hospital &amp; School (N) · Apartments (R) · Financial Service (O)</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section style="max-width:1600px; margin:0 auto; padding:0 clamp(24px,4.5vw,70px) clamp(110px,12vw,180px)">
+      <div style="margin-bottom:56px">
+        <span data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Peluang Bisnis</span>
+        <h2 data-reveal="true" style="font-size:clamp(34px,4vw,56px); font-weight:300; line-height:1.08; letter-spacing:-0.01em; max-width:760px">Tiga Pilar Nilai Investasi</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:32px">
+        <article data-tilt="true" data-reveal="true" style="padding:48px 42px 44px; border:1px solid #E7E7E7; border-radius:20px; background:#FFFFFF; will-change:transform">
+          <span style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:36px">01</span>
+          <h3 style="font-size:24px; font-weight:400; letter-spacing:-0.01em; margin-bottom:16px">Strategic Location</h3>
+          <p style="font-size:15px; font-weight:300; color:#777777; line-height:1.65; text-wrap:pretty">Pulau Belitung sebagai destinasi ikonik, Pantai Laskar Pelangi, dan pariwisata yang terus bertumbuh.</p>
+        </article>
+        <article data-tilt="true" data-reveal="true" style="padding:48px 42px 44px; border:1px solid #E7E7E7; border-radius:20px; background:#FFFFFF; will-change:transform">
+          <span style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:36px">02</span>
+          <h3 style="font-size: 24px; font-weight: 400; letter-spacing: -0.01em; margin-bottom: 16px; color: #111111">Integrated Ecosystem</h3>
+          <p style="font-size:15px; font-weight:300; color:#777777; line-height:1.65; text-wrap:pretty">Marina, hunian mewah, hiburan, dan agro-tourism dalam satu pengembangan terpadu.</p>
+        </article>
+        <article data-tilt="true" data-reveal="true" style="padding:48px 42px 44px; border:1px solid #E7E7E7; border-radius:20px; background:#FFFFFF; will-change:transform">
+          <span style="display:block; font-size:12px; letter-spacing:0.22em; color:#B89552; margin-bottom:36px">03</span>
+          <h3 style="font-size:24px; font-weight:400; letter-spacing:-0.01em; margin-bottom:16px">Premium Positioning</h3>
+          <p style="font-size:15px; font-weight:300; color:#777777; line-height:1.65; text-wrap:pretty">Marina superyacht kelas dunia, resor bintang lima, kompleks komersial terapung, dan convention center internasional.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="investasi" data-grid="44 56" data-animate="investment" style="color: #F8F8F6; display: grid; grid-template-columns: 44% 56%; align-items: center; gap: clamp(48px,5vw,60px); padding: clamp(90px,10vw,140px) clamp(24px,4.5vw,70px); margin-bottom: clamp(110px,12vw,180px); background: #111111">
+      <div data-col="text" style="max-width:470px">
+        <span data-cms="invest_kicker" data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Investasi</span>
+        <h2 data-cms="invest_title" data-cms-html data-reveal="true" style="font-size: clamp(34px,4vw,56px); font-weight: 300; line-height: 1.08; letter-spacing: -0.01em; color: #F8F8F6">Miliki Bagian dari<br>Masa Depan Belitung</h2>
+        <p data-cms="invest_body" data-reveal="true" style="max-width:480px; font-size:17px; font-weight:300; color:#9A9A97; margin-top:20px; line-height:1.65; text-wrap:pretty">RANATI menjembatani modal global dengan instrumen real estat dan pariwisata berimbal hasil tinggi — sebagai land developer pemegang hak atas ±714 hektar lahan strategis.</p>
+        <a href="#kontak" data-reveal="true" style="display:inline-flex; align-items:center; gap:10px; margin-top:40px; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; padding:18px 30px; border-radius:999px; background:#B89552; color:#111111; transition:background .35s" style-hover="background:#cfa863; color:#111111">
+          <span data-cms="invest_cta">Lihat Peluang</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+        </a>
+      </div>
+      <div data-col="media" data-reveal="true" data-scene="invest" style="height:clamp(340px,42vw,520px); perspective:1400px">
+        <div data-scene-inner="true" style="position:relative; width:100%; height:100%; border-radius:28px; overflow:hidden; background:#1c1c1c; transform-style:preserve-3d; will-change:transform">
+          <div data-depth="0.3" style="position:absolute; inset:-6%">
+            <img loading="lazy" decoding="async" src="assets/marina-aerial.jpg" data-cms="invest_media" data-cms-default="assets/marina-aerial.jpg" alt="Kawasan investasi Marina Bay dari udara" style="filter:saturate(0.72) contrast(1.04) sepia(0.08) brightness(0.96)">
+          </div>
+          <div data-depth="1.6" style="position:absolute; left:34px; top:34px; display:flex; flex-direction:column; gap:10px; align-items:flex-start">
+            <span style="padding:10px 16px; border-radius:999px; background:rgba(17,17,17,0.6); backdrop-filter:blur(12px); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#F8F8F6">Land Developer</span>
+            <span style="padding:10px 16px; border-radius:999px; background:rgba(17,17,17,0.6); backdrop-filter:blur(12px); font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#F8F8F6">±714 Ha</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="berita" data-animate="news" style="padding:0 clamp(24px,4.5vw,70px) clamp(120px,13vw,200px); max-width:1600px; margin:0 auto">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:56px; gap:40px">
+        <div>
+          <span data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Jurnal</span>
+          <h2 data-reveal="true" style="font-size:clamp(34px,4vw,56px); font-weight:300; line-height:1.08; letter-spacing:-0.01em">Berita Terbaru</h2>
+        </div>
+        <a href="#berita" data-reveal="true" style="flex-shrink:0; display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; padding:18px 30px; border-radius:999px; background:transparent; color:#111111; border:1px solid #E7E7E7; transition:border-color .35s" style-hover="border-color:#111111; color:#111111">
+          <span>Semua Berita</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+        </a>
+      </div>
+      <ul style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:32px">
+        <li data-reveal="true">
+          <div data-tilt="true" style="height:280px; border-radius:20px; overflow:hidden; background:#E7E7E7; margin-bottom:22px; will-change:transform">
+            <img loading="lazy" decoding="async" src="assets/zone1-marina.jpg" data-cms="news1_media" data-cms-default="assets/zone1-marina.jpg" alt="" style="filter:saturate(0.7) contrast(1.02) sepia(0.06)">
+          </div>
+          <span style="display:block; font-size:12px; color:#B89552; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:10px">Placeholder · Isi nanti</span>
+          <h3 style="font-size:20px; font-weight:400; line-height:1.35; max-width:320px">Groundbreaking Marina Bay</h3>
+        </li>
+        <li data-reveal="true">
+          <div data-tilt="true" style="height:280px; border-radius:20px; overflow:hidden; background:#E7E7E7; margin-bottom:22px; will-change:transform">
+            <img loading="lazy" decoding="async" src="assets/zone2-residence.jpg" data-cms="news2_media" data-cms-default="assets/zone2-residence.jpg" alt="" style="filter:saturate(0.7) contrast(1.02) sepia(0.06)">
+          </div>
+          <span style="display:block; font-size:12px; color:#B89552; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:10px">Placeholder · Isi nanti</span>
+          <h3 style="font-size:20px; font-weight:400; line-height:1.35; max-width:320px">Kemitraan Hospitality Internasional</h3>
+        </li>
+        <li data-reveal="true">
+          <div data-tilt="true" style="height:280px; border-radius:20px; overflow:hidden; background:#E7E7E7; margin-bottom:22px; will-change:transform">
+            <img loading="lazy" decoding="async" src="assets/zone5-agro.jpg" data-cms="news3_media" data-cms-default="assets/zone5-agro.jpg" alt="" style="filter:saturate(0.7) contrast(1.02) sepia(0.06)">
+          </div>
+          <span style="display:block; font-size:12px; color:#B89552; letter-spacing:0.16em; text-transform:uppercase; margin-bottom:10px">Placeholder · Isi nanti</span>
+          <h3 style="font-size:20px; font-weight:400; line-height:1.35; max-width:320px">Kerangka Keberlanjutan Diluncurkan</h3>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <main ref="{{ planRef }}" data-screen-label="Masterplan" style="display:none">
+    <section style="max-width:1600px; margin:0 auto; padding:clamp(140px,15vw,200px) clamp(24px,4.5vw,70px) 80px">
+      <span style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Masterplan</span>
+      <h1 style="font-size:clamp(40px,5vw,72px); font-weight:300; line-height:1.02; letter-spacing:-0.02em; max-width:900px">Peta Induk<br>±714 Hektar</h1>
+      
+    </section>
+
+    <section style="padding:0 clamp(24px,4.5vw,70px) clamp(90px,10vw,140px)">
+      <div style="position:relative; max-width:1600px; margin:0 auto; height:min(82vh,900px); min-height:520px; border-radius:28px; overflow:hidden; background:#F1EFEA; border:1px solid #E7E7E7; box-shadow:0 50px 100px -60px rgba(17,17,17,0.35)">
+        <iframe data-model="plan" allow="fullscreen" src="masterplan-3d.html?v=3" title="Model 3D masterplan RANATI — enam zona" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; border:0; pointer-events:none"></iframe>
+        <div data-model-veil="plan" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; background:rgba(241,239,234,0.5); backdrop-filter:blur(2px); cursor:pointer; transition:opacity .5s">
+          <span style="font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#B89552">Maket 3D</span>
+          <span style="font-size:clamp(22px,2.4vw,34px); font-weight:300; letter-spacing:-0.01em; color:#111111; text-align:center; max-width:560px; text-wrap:pretty">Seret memutar · gulir zoom · klik zona</span>
+          <span style="display:inline-flex; align-items:center; gap:10px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; padding:15px 26px; border-radius:999px; background:#111111; color:#F8F8F6">Aktifkan Kontrol 3D</span>
+        </div>
+        <button data-model-release="plan" style="position:absolute; right:14px; top:64px; display:none; align-items:center; gap:8px; font:inherit; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; padding:11px 18px; border-radius:999px; border:1px solid rgba(17,17,17,0.14); background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); color:#111111; cursor:pointer; z-index:4">Lepas Kontrol</button>
+      </div>
+    </section>
+
+    <section style="max-width:1600px; margin:0 auto; padding:0 clamp(24px,4.5vw,70px) 120px; display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:48px; align-items:start" data-grid="plan">
+      <div style="grid-column:1 / -1; margin-bottom:-16px">
+        <span style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552">Peta Survei</span>
+      </div>
+      <div data-plan-stage="true" style="position:relative; border-radius:28px; overflow:hidden; background:#0d1a10; aspect-ratio:604 / 453">
+        <img loading="lazy" decoding="async" src="assets/masterplan-map.jpg" alt="Master Plan PT Ranati" style="position:absolute; inset:0; filter:saturate(0.8) contrast(1.05) brightness(0.98)">
+        <div data-plan-dim="true" style="position:absolute; inset:0; background:rgba(9,14,10,0.0); transition:background .5s; pointer-events:none"></div>
+        <button data-hot="0" style="position:absolute; left:74%; top:28%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:999px; border:1px solid rgba(248,248,246,0.9); background:rgba(184,149,82,0.9); color:#111111; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .4s, box-shadow .4s; z-index:3">1</button>
+        <button data-hot="1" style="position:absolute; left:22%; top:52%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:999px; border:1px solid rgba(248,248,246,0.9); background:rgba(184,149,82,0.9); color:#111111; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .4s, box-shadow .4s; z-index:3">2</button>
+        <button data-hot="2" style="position:absolute; left:47%; top:47%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:999px; border:1px solid rgba(248,248,246,0.9); background:rgba(184,149,82,0.9); color:#111111; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .4s, box-shadow .4s; z-index:3">3</button>
+        <button data-hot="3" style="position:absolute; left:37%; top:57%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:999px; border:1px solid rgba(248,248,246,0.9); background:rgba(184,149,82,0.9); color:#111111; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .4s, box-shadow .4s; z-index:3">4</button>
+        <button data-hot="4" style="position:absolute; left:63%; top:44%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:999px; border:1px solid rgba(248,248,246,0.9); background:rgba(184,149,82,0.9); color:#111111; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .4s, box-shadow .4s; z-index:3">5</button>
+        <button data-hot="5" style="position:absolute; left:55%; top:62%; width:34px; height:34px; margin:-17px 0 0 -17px; border-radius:999px; border:1px solid rgba(248,248,246,0.9); background:rgba(184,149,82,0.9); color:#111111; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .4s, box-shadow .4s; z-index:3">6</button>
+      </div>
+
+      <aside style="position:sticky; top:120px; display:flex; flex-direction:column; gap:0; border:1px solid #E7E7E7; border-radius:20px; background:#FFFFFF; overflow:hidden">
+        <div data-legend="0" style="padding:22px 26px; border-bottom:1px solid #E7E7E7; transition:background .35s; cursor:pointer">
+          <span style="display:block; font-size:11px; letter-spacing:0.2em; color:#B89552; margin-bottom:6px">ZONA 01</span>
+          <h3 style="font-size:17px; font-weight:400; margin-bottom:4px">Marina Bay &amp; Pusat Bahari Dunia</h3>
+          <p style="font-size:13px; font-weight:300; color:#777777">120 Ha · Superyacht · Floating Commercial · Waterfront Hotels</p>
+        </div>
+        <div data-legend="1" style="padding:22px 26px; border-bottom:1px solid #E7E7E7; transition:background .35s; cursor:pointer">
+          <span style="display:block; font-size:11px; letter-spacing:0.2em; color:#B89552; margin-bottom:6px">ZONA 02</span>
+          <h3 style="font-size:17px; font-weight:400; margin-bottom:4px">Hunian Eksklusif &amp; Resor Pantai</h3>
+          <p style="font-size:13px; font-weight:300; color:#777777">Exclusive Villas · Saphire Residence (G) · Resor 4–5 Star</p>
+        </div>
+        <div data-legend="2" style="padding:22px 26px; border-bottom:1px solid #E7E7E7; transition:background .35s; cursor:pointer">
+          <span style="display:block; font-size:11px; letter-spacing:0.2em; color:#B89552; margin-bottom:6px">ZONA 03</span>
+          <h3 style="font-size:17px; font-weight:400; margin-bottom:4px">Pusat Rekreasi &amp; Hiburan</h3>
+          <p style="font-size:13px; font-weight:300; color:#777777">Themepark (H) · Botanical Garden (B) · Sport Center (I)</p>
+        </div>
+        <div data-legend="3" style="padding:22px 26px; border-bottom:1px solid #E7E7E7; transition:background .35s; cursor:pointer">
+          <span style="display:block; font-size:11px; letter-spacing:0.2em; color:#B89552; margin-bottom:6px">ZONA 04</span>
+          <h3 style="font-size:17px; font-weight:400; margin-bottom:4px">Traditional Market &amp; Art Village</h3>
+          <p style="font-size:13px; font-weight:300; color:#777777">Authentic Market (Q) · Convention Center (P)</p>
+        </div>
+        <div data-legend="4" style="padding:22px 26px; border-bottom:1px solid #E7E7E7; transition:background .35s; cursor:pointer">
+          <span style="display:block; font-size:11px; letter-spacing:0.2em; color:#B89552; margin-bottom:6px">ZONA 05</span>
+          <h3 style="font-size:17px; font-weight:400; margin-bottom:4px">Agro-Tourism &amp; Jasa Inovatif</h3>
+          <p style="font-size:13px; font-weight:300; color:#777777">Organic Agro (J) · Nursing Village (C) · Adventure Canal</p>
+        </div>
+        <div data-legend="5" style="padding:22px 26px; transition:background .35s; cursor:pointer">
+          <span style="display:block; font-size:11px; letter-spacing:0.2em; color:#B89552; margin-bottom:6px">ZONA 06</span>
+          <h3 style="font-size:17px; font-weight:400; margin-bottom:4px">Komunitas &amp; Hunian Terintegrasi</h3>
+          <p style="font-size:13px; font-weight:300; color:#777777">Mosque (M) · Hospital &amp; School (N) · Apartments (R)</p>
+        </div>
+      </aside>
+    </section>
+
+    <section style="max-width:1600px; margin:0 auto; padding:0 clamp(24px,4.5vw,70px) clamp(110px,12vw,180px)">
+      <div style="margin-bottom:48px">
+        <span data-reveal="true" style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Break Up Site Plan</span>
+        <h2 data-reveal="true" style="font-size:clamp(34px,4vw,56px); font-weight:300; line-height:1.08; letter-spacing:-0.01em">Penjelasan Atraktif</h2>
+      </div>
+      <div data-reveal="true" data-scene="plan2" style="perspective:1600px">
+        <div data-scene-inner="true" style="position:relative; border-radius:28px; overflow:hidden; background:#E7E7E7; transform-style:preserve-3d; will-change:transform; box-shadow:0 50px 100px -60px rgba(17,17,17,0.45)">
+          <img loading="lazy" decoding="async" src="assets/siteplan-breakup.jpg" alt="Break up site plan PT Ranati" style="position:relative; height:auto; filter:saturate(0.82) contrast(1.02)">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main ref="{{ zoneRef }}" data-screen-label="Zona 1" style="display:none">
+    <section data-scene="z1" style="position:relative; height:92vh; min-height:560px; perspective:1600px; margin-bottom:120px">
+      <div data-scene-inner="true" style="position:absolute; inset:0; overflow:hidden; transform-style:preserve-3d; background:#111111">
+        <div data-depth="0.28" style="position:absolute; inset:-7%">
+          <img loading="lazy" decoding="async" src="assets/zone1-marina.jpg" alt="Marina Bay Ranati" style="filter:saturate(0.76) contrast(1.04) sepia(0.06)">
+        </div>
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.90) 0%, rgba(17,17,17,0.62) 42%, rgba(17,17,17,0.34) 72%, rgba(17,17,17,0.46) 100%)"></div>
+        <div data-depth="1.4" style="position:absolute; left:clamp(24px,4.5vw,70px); right:clamp(24px,4.5vw,70px); bottom:clamp(48px,8vh,88px); max-width:820px; color:#F8F8F6">
+          <span style="display:inline-block; font-size:13px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase; color:#B89552; margin-bottom:20px">Zona 1 — PT Ranati</span>
+          <h1 style="font-size:clamp(40px,5.4vw,80px); font-weight:300; line-height:1.0; letter-spacing:-0.02em">Marina Bay &amp;<br>Pusat Bahari Dunia</h1>
+          <p style="font-size:18px; font-weight:300; color:rgba(248,248,246,0.78); margin-top:24px; max-width:560px; line-height:1.65; text-wrap:pretty">Gerbang Bahari Dunia — 120 Ha.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="max-width:1600px; margin:0 auto; padding:0 clamp(24px,4.5vw,70px) clamp(90px,10vw,140px); display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:clamp(40px,6vw,90px); align-items:start">
+      <div>
+        <h2 style="font-size:clamp(30px,3.2vw,46px); font-weight:300; line-height:1.12; letter-spacing:-0.01em; text-wrap:pretty">Detak jantung bahari PT Ranati</h2>
+      </div>
+      <div>
+        <p style="font-size:17px; font-weight:300; color:#777777; line-height:1.7; text-wrap:pretty">Dengan fasilitas bersandar kelas dunia untuk superyacht, kompleks komersial terapung (Block F), Culinary Market, Art Village (Q), dan Convention Center megah (P) — zona ini adalah pusat energi dan kemewahan bahari Belitung.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-top:48px">
+          <div style="border-top:1px solid #E7E7E7; padding-top:18px">
+            <span style="display:block; font-size:36px; font-weight:300; letter-spacing:-0.01em">120</span>
+            <span style="font-size:13px; color:#777777">Hektar kawasan marina</span>
+          </div>
+          <div style="border-top:1px solid #E7E7E7; padding-top:18px">
+            <span style="display:block; font-size:36px; font-weight:300; letter-spacing:-0.01em">A–F</span>
+            <span style="font-size:13px; color:#777777">Blok komersial &amp; hunian tepi laut</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:0 clamp(24px,4.5vw,70px) clamp(90px,10vw,140px)">
+      <div style="position:relative; max-width:1600px; margin:0 auto; height:min(70vh,760px); min-height:460px; border-radius:28px; overflow:hidden; background:#F1EFEA; border:1px solid #E7E7E7">
+        <iframe data-model="zone" allow="fullscreen" src="masterplan-3d.html?zona=1&amp;v=3" title="Model 3D Zona 1 Marina Bay" loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; border:0; pointer-events:none"></iframe>
+        <div data-model-veil="zone" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; background:rgba(241,239,234,0.5); backdrop-filter:blur(2px); cursor:pointer; transition:opacity .5s">
+          <span style="font-size:11px; letter-spacing:0.24em; text-transform:uppercase; color:#B89552">Zona 1 dalam 3D</span>
+          <span style="font-size:clamp(22px,2.4vw,32px); font-weight:300; letter-spacing:-0.01em; color:#111111; text-align:center; max-width:520px; text-wrap:pretty">Periksa marina, dermaga, dan blok tepi laut</span>
+          <span style="display:inline-flex; align-items:center; gap:10px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; padding:15px 26px; border-radius:999px; background:#111111; color:#F8F8F6">Aktifkan Kontrol 3D</span>
+        </div>
+        <button data-model-release="zone" style="position:absolute; right:14px; top:64px; display:none; align-items:center; gap:8px; font:inherit; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; padding:11px 18px; border-radius:999px; border:1px solid rgba(17,17,17,0.14); background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); color:#111111; cursor:pointer; z-index:4">Lepas Kontrol</button>
+      </div>
+    </section>
+
+    <section style="max-width:1600px; margin:0 auto; padding:0 clamp(24px,4.5vw,70px) clamp(100px,11vw,160px); display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:32px">
+      <article data-tilt="true" data-reveal="true" style="position:relative; height:420px; border-radius:20px; overflow:hidden; background:#111111; will-change:transform">
+        <img loading="lazy" decoding="async" src="assets/marina-aerial.jpg" alt="Marina superyacht dan apartemen tepi laut" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.84), rgba(17,17,17,0))"></div>
+        <div style="position:absolute; left:32px; right:32px; bottom:30px; color:#F8F8F6">
+          <span style="display:block; font-size:11px; letter-spacing:0.22em; color:#B89552; margin-bottom:8px">BLOK D / E</span>
+          <h3 style="font-size:24px; font-weight:400">Marina Superyacht &amp; Apartemen Tepi Laut</h3>
+        </div>
+      </article>
+      <article data-tilt="true" data-reveal="true" style="position:relative; height:420px; border-radius:20px; overflow:hidden; background:#111111; will-change:transform">
+        <img loading="lazy" decoding="async" src="assets/zone4-market.jpg" alt="Culinary Market dan Art Village" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.84), rgba(17,17,17,0))"></div>
+        <div style="position:absolute; left:32px; right:32px; bottom:30px; color:#F8F8F6">
+          <span style="display:block; font-size:11px; letter-spacing:0.22em; color:#B89552; margin-bottom:8px">BLOK Q</span>
+          <h3 style="font-size:24px; font-weight:400">Culinary Market &amp; Art Village</h3>
+        </div>
+      </article>
+      <article data-tilt="true" data-reveal="true" style="position:relative; height:420px; border-radius:20px; overflow:hidden; background:#111111; will-change:transform">
+        <img loading="lazy" decoding="async" src="assets/hero-marina-sunset.jpg" alt="Kompleks komersial terapung" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.84), rgba(17,17,17,0))"></div>
+        <div style="position:absolute; left:32px; right:32px; bottom:30px; color:#F8F8F6">
+          <span style="display:block; font-size:11px; letter-spacing:0.22em; color:#B89552; margin-bottom:8px">BLOK F</span>
+          <h3 style="font-size:24px; font-weight:400">Kompleks Komersial Terapung Premium</h3>
+        </div>
+      </article>
+      <article data-tilt="true" data-reveal="true" style="position:relative; height:420px; border-radius:20px; overflow:hidden; background:#111111; will-change:transform">
+        <img loading="lazy" decoding="async" src="assets/zone6-community.jpg" alt="Convention Center berkelas internasional" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)">
+        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.84), rgba(17,17,17,0))"></div>
+        <div style="position:absolute; left:32px; right:32px; bottom:30px; color:#F8F8F6">
+          <span style="display:block; font-size:11px; letter-spacing:0.22em; color:#B89552; margin-bottom:8px">BLOK P</span>
+          <h3 style="font-size:24px; font-weight:400">Convention Center Internasional</h3>
+        </div>
+      </article>
+    </section>
+
+    <section style="max-width:1600px; margin:0 auto; padding:0 clamp(24px,4.5vw,70px) clamp(110px,12vw,180px); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:32px 40px; border-top:1px solid #E7E7E7; padding-top:60px">
+      <div>
+        <span style="display:block; font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#777777; margin-bottom:10px">Selanjutnya</span>
+        <h3 style="font-size:32px; font-weight:300; letter-spacing:-0.01em">Zona 2 — Hunian Eksklusif &amp; Resor Pantai</h3>
+      </div>
+      <a href="#top" onClick="{{ goPlan }}" style="flex-shrink:0; display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; padding:18px 30px; border-radius:999px; background:#111111; color:#F8F8F6; transition:background .35s" style-hover="background:#B89552; color:#111111">
+        <span>Kembali ke Masterplan</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+      </a>
+    </section>
+  </main>
+
+  <footer id="kontak" style="background:#111111; color:#F8F8F6; padding:clamp(90px,10vw,140px) clamp(24px,4.5vw,70px) 48px">
+    <div style="max-width:1600px; margin:0 auto; padding-bottom:100px; border-bottom:1px solid rgba(255,255,255,0.12)">
+      <span style="display:block; font-size:13px; letter-spacing:0.3em; color:#B89552; margin-bottom:28px">RANATI</span>
+      <h2 data-cms="footer_title" data-cms-html style="font-size:clamp(38px,4.5vw,64px); font-weight:300; line-height:1.08; margin-bottom:44px; max-width:760px">Mari Bangun<br>Masa Depan Bersama.</h2>
+      <div style="display:flex; gap:64px; flex-wrap:wrap; align-items:flex-end">
+        <a href="#kontak" data-wa-link style="display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; padding:18px 30px; border-radius:999px; background:transparent; color:#F8F8F6; border:1px solid rgba(255,255,255,0.25); transition:border-color .35s, color .35s" style-hover="border-color:#B89552; color:#B89552">
+          <span data-cms="footer_cta">Hubungi Kami</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
+        </a>
+        <div style="display:flex; flex-direction:column; gap:6px">
+          <span style="font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#B89552">Kontak</span>
+          <span data-cms="footer_company" style="font-size:15px; font-weight:300; color:#9A9A97">PT Putra Ciptawahana Sejati (RANATI)</span>
+          <span data-cms="footer_address" style="font-size:15px; font-weight:300; color:#9A9A97">Kabupaten Belitung — alamat &amp; telepon menyusul</span>
+        </div>
+        <form data-contact-form style="display:flex; flex-direction:column; gap:12px; min-width:280px; flex:1; max-width:440px">
+          <span style="font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:#B89552">Kirim Pesan</span>
+          <input data-contact-website type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0" />
+          <input data-contact-name type="text" placeholder="Nama" style="padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.05); color:#F8F8F6; font:inherit; font-size:14px" />
+          <input data-contact-email type="email" placeholder="Email (opsional)" style="padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.05); color:#F8F8F6; font:inherit; font-size:14px" />
+          <input data-contact-phone type="text" placeholder="No. WhatsApp (opsional)" style="padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.05); color:#F8F8F6; font:inherit; font-size:14px" />
+          <textarea data-contact-msg placeholder="Pesan Anda" rows="3" style="padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.05); color:#F8F8F6; font:inherit; font-size:14px; resize:vertical"></textarea>
+          <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+            <button data-contact-submit type="button" style="padding:14px 28px; border-radius:999px; background:#B89552; color:#111111; border:none; cursor:pointer; font:inherit; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase">Kirim Pesan</button>
+            <span data-contact-status style="font-size:13px; color:#9A9A97"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div style="max-width:1600px; margin:0 auto; padding-top:40px; display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap">
+      <nav aria-label="Footer" style="display:flex; gap:36px">
+        <a href="#top" onClick="{{ goHome }}" style="font-size:13px; color:#9A9A97; transition:color .3s">Beranda</a>
+        <a href="#top" onClick="{{ goPlan }}" style="font-size:13px; color:#9A9A97; transition:color .3s">Masterplan</a>
+        <a href="#top" onClick="{{ goZone }}" style="font-size:13px; color:#9A9A97; transition:color .3s">Zona</a>
+        <a href="#investasi" onClick="{{ goInvest }}" style="font-size:13px; color:#9A9A97; transition:color .3s">Investasi</a>
+        <a href="#berita" onClick="{{ goBerita }}" style="font-size:13px; color:#9A9A97; transition:color .3s">Berita</a>
+      </nav>
+      <span style="font-size:13px; color:#9A9A97">© 2026 PT Ranati — Destinasi Terpadu Masa Depan Belitung.</span>
+    </div>
+  </footer>
+
+  <a data-wa-float href="#" target="_blank" rel="noopener" aria-label="Chat WhatsApp" style="display:none; position:fixed; right:22px; bottom:22px; z-index:300; width:58px; height:58px; border-radius:999px; background:#25D366; align-items:center; justify-content:center; box-shadow:0 14px 34px -10px rgba(37,211,102,0.7)">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="#ffffff" aria-hidden="true"><path d="M16 3C9.4 3 4 8.4 4 15c0 2.1.6 4.2 1.6 6L4 29l8.2-1.6c1.7.9 3.7 1.4 5.8 1.4 6.6 0 12-5.4 12-12S22.6 3 16 3zm0 21.8c-1.8 0-3.6-.5-5.1-1.4l-.4-.2-4.8 1 1-4.7-.3-.4c-1-1.6-1.5-3.4-1.5-5.3C4.9 9.5 9.9 4.9 16 4.9c5.6 0 10.2 4.6 10.2 10.2S21.6 24.8 16 24.8zm5.6-7.6c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-1.8-.9-3-1.6-4.2-3.6-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5-.1-.2-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.1 3.3 5.2 4.6 2 .8 2.7.9 3.7.8.6-.1 1.8-.7 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.2-.3-.2-.6-.4z"/></svg>
+  </a>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:1000},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;,&quot;section&quot;:&quot;Tampilan&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.homeRef = React.createRef();
+    this.planRef = React.createRef();
+    this.zoneRef = React.createRef();
+    this.ringAngle = 0;
+    this.ringTarget = 0;
+    this.page = "home";
+    let saved = null;
+    try { saved = localStorage.getItem("ranati-theme"); } catch (e) {}
+    this.state = { dark: (saved || props.theme || "light") === "dark" };
+  }
+
+  renderVals() {
+    return {
+      homeRef: this.homeRef,
+      planRef: this.planRef,
+      zoneRef: this.zoneRef,
+      goHome: (e) => { if (e) e.preventDefault(); this.show("home"); },
+      goPlan: (e) => { if (e) e.preventDefault(); this.show("plan"); },
+      goZone: (e) => { if (e) e.preventDefault(); this.show("zone"); },
+      toggleTheme: () => this.setState({ dark: !this.state.dark }),
+      toggleMenu: () => this.setMenu(!this.menuOpen),
+      closeMenu: () => this.setMenu(false),
+      goHomeMenu: (e) => { e.preventDefault(); this.setMenu(false); this.show("home"); },
+      goPlanMenu: (e) => { e.preventDefault(); this.setMenu(false); this.show("plan"); },
+      goZoneMenu: (e) => { e.preventDefault(); this.setMenu(false); this.show("zone"); },
+      goInvest: (e) => { if (e) e.preventDefault(); this.setMenu(false); this.show("home"); setTimeout(() => { const t = document.getElementById("investasi"); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80); },
+      goBerita: (e) => { if (e) e.preventDefault(); this.setMenu(false); this.show("home"); setTimeout(() => { const t = document.getElementById("berita"); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80); },
+      ringPrev: () => { this.ringTarget += 60; },
+      ringNext: () => { this.ringTarget -= 60; }
+    };
+  }
+
+  show(page) {
+    this.page = page;
+    const m = { home: this.homeRef, plan: this.planRef, zone: this.zoneRef };
+    Object.keys(m).forEach((k) => {
+      const el = m[k].current;
+      if (el) el.style.display = k === page ? "" : "none";
+    });
+    document.querySelectorAll("[data-nav]").forEach((a) => {
+      a.style.opacity = a.getAttribute("data-nav") === page ? "1" : "0.62";
+    });
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => this.runReveals(true));
+  }
+
+  runReveals(force) {
+    document.querySelectorAll("[data-reveal]").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (force && r.top > window.innerHeight) el.classList.remove("is-in");
+      if (r.top < window.innerHeight * 0.88 && r.bottom > 0) el.classList.add("is-in");
+    });
+  }
+
+  componentDidMount() {
+    this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Perangkat sentuh (HP/tablet): matikan parallax/tilt agar mulus & hemat baterai.
+    this.isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+    this.pointer = { x: 0, y: 0 };
+    this.smooth = { x: 0, y: 0 };
+
+    // staggered reveal ordering
+    document.querySelectorAll("[data-reveal]").forEach((el, i) => {
+      el.style.transitionDelay = (i % 6) * 0.07 + "s";
+    });
+
+    this.io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("is-in");
+          if (e.target.hasAttribute("data-count")) this.count(e.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll("[data-reveal],[data-count]").forEach((el) => this.io.observe(el));
+
+    this.onMove = (e) => {
+      this.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+      this.pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    window.addEventListener("pointermove", this.onMove, { passive: true });
+
+    this.setMenu = (open) => {
+      this.menuOpen = open;
+      const menu = document.querySelector("[data-mobile-menu]");
+      const btn = document.querySelector("[data-menu-toggle]");
+      if (menu) menu.style.display = open ? "flex" : "none";
+      if (btn) {
+        btn.setAttribute("aria-expanded", String(open));
+        btn.setAttribute("aria-label", open ? "Tutup menu" : "Buka menu");
+        const io = btn.querySelector("[data-menu-icon='open']");
+        const ic = btn.querySelector("[data-menu-icon='close']");
+        if (io) io.style.display = open ? "none" : "block";
+        if (ic) ic.style.display = open ? "block" : "none";
+      }
+      document.body.style.overflow = open ? "hidden" : "";
+    };
+
+    this.layoutGrids = () => {
+      const narrow = window.innerWidth < 960;
+      const phone = window.innerWidth < 700;
+      // header: hamburger on phones, inline nav elsewhere
+      const dnav = document.querySelector("[data-desktop-nav]");
+      const mbtn = document.querySelector("[data-menu-toggle]");
+      if (dnav) dnav.style.display = phone ? "none" : "flex";
+      if (mbtn) mbtn.style.display = phone ? "flex" : "none";
+      if (!phone && this.menuOpen) this.setMenu(false);
+      // hero: shorter media panel and stacked flow on phones
+      const heroScene = document.querySelector("[data-scene='hero']");
+      if (heroScene) heroScene.style.height = phone ? "52vh" : "78vh";
+      // typography & touch targets
+      document.querySelectorAll("[data-ring-item]").forEach(() => {});
+      document.querySelectorAll("[data-grid]").forEach((sec) => {
+        const g = sec.getAttribute("data-grid");
+        if (g === "stats") {
+          const w = window.innerWidth;
+          const n = sec.children.length;
+          sec.style.gridTemplateColumns =
+            w < 620 ? "minmax(0,1fr)" : w < 1180 && n % 2 === 0 ? "repeat(2,minmax(0,1fr))" : "repeat(" + n + ",minmax(0,1fr))";
+          return;
+        }
+        if (g === "plan") {
+          sec.style.gridTemplateColumns = window.innerWidth < 1100 ? "minmax(0,1fr)" : "minmax(0,1fr) 380px";
+          return;
+        }
+        const [a, b] = g.split(" ");
+        sec.style.gridTemplateColumns = narrow ? "minmax(0,1fr)" : a + "% " + b + "%";
+        const media = sec.querySelector("[data-col='media']");
+        const text = sec.querySelector("[data-col='text']");
+        if (media) media.style.order = narrow && sec.dataset.grid !== "58 42" ? "-1" : "";
+        if (text) text.style.maxWidth = narrow ? "100%" : "";
+      });
+      const cue = document.querySelector("[data-cue]");
+      if (cue) cue.style.display = window.innerWidth < 1180 ? "none" : "flex";
+      // stats: comfortable phone spacing
+      const dl = document.querySelector("[data-grid='stats']");
+      if (dl) dl.style.padding = phone ? "32px 28px" : "";
+      // section paddings already clamp(); pull the huge top padding in on phones
+      const hero = document.querySelector("[data-animate='hero']");
+      if (hero) hero.style.minHeight = phone ? "auto" : "100vh";
+    };
+    this.layoutGrids();
+    window.addEventListener("resize", this.layoutGrids);
+    this.initTheme();
+    this.initModels();
+    this.initRing();
+    this.initHotspots();
+    this.tick = this.tick.bind(this);
+    this.raf = requestAnimationFrame(this.tick);
+  }
+
+  count(el) {
+    if (el.dataset.counted) return;
+    el.dataset.counted = "1";
+    const target = parseInt(el.getAttribute("data-count"), 10);
+    if (!target) return;
+    const t0 = performance.now();
+    const dur = 1400;
+    const step = (t) => {
+      const p = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = String(Math.round(target * e));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* Dark mode. Every style in this design is inline, so the theme is applied by
+     remapping the palette hexes inside each element's own style declarations —
+     originals are cached, so switching back is lossless (and direct edits the
+     user makes in light mode survive). */
+  initTheme() {
+    this.themeSnap = new WeakMap();
+    /* Palette swap, both directions. Each row is [light, dark]; every colour is
+       matched as authored hex AND as the rgb() form the browser serializes to,
+       and each dark token is unique so the reverse map is unambiguous. Styles
+       are read live rather than from a cache, so runtime layout changes (grid
+       columns, model veils) and direct edits are never clobbered. */
+    const ROWS_BG = [
+      ["#F8F8F6", "rgb(248, 248, 246)", "#0E0E0D", "rgb(14, 14, 13)"],
+      ["#FFFFFF", "rgb(255, 255, 255)", "#17171B", "rgb(23, 23, 27)"],
+      ["#E7E7E7", "rgb(231, 231, 231)", "#2C2C31", "rgb(44, 44, 49)"],
+      ["#111111", "rgb(17, 17, 17)", "#1B1B20", "rgb(27, 27, 32)"],
+      ["#F1EFEA", "rgb(241, 239, 234)", "#121215", "rgb(18, 18, 21)"],
+      ["#1c1c1c", "rgb(28, 28, 28)", "#131317", "rgb(19, 19, 23)"],
+      ["#0d1a10", "rgb(13, 26, 16)", "#08100A", "rgb(8, 16, 10)"]
+    ];
+    const ROWS_FG = [
+      ["#111111", "rgb(17, 17, 17)", "#F1F0ED", "rgb(241, 240, 237)"],
+      ["#777777", "rgb(119, 119, 119)", "#93938F", "rgb(147, 147, 143)"],
+      ["#F8F8F6", "rgb(248, 248, 246)", "#F2F1EE", "rgb(242, 241, 238)"],
+      ["#9A9A97", "rgb(154, 154, 151)", "#8B8B88", "rgb(139, 139, 136)"],
+      ["#B89552", "rgb(184, 149, 82)", "#C9A661", "rgb(201, 166, 97)"]
+    ];
+    const build = (rows, toDark) => Object.fromEntries(
+      rows.flatMap(([lh, lr, dh, dr]) => toDark
+        ? [[lh, dh], [lh.toLowerCase(), dh], [lr, dh]]
+        : [[dh, lh], [dh.toLowerCase(), lh], [dr, lh]])
+    );
+    const MAPS = {
+      dark: { color: build(ROWS_FG, true), other: build(ROWS_BG, true) },
+      // returning to light also heals any text colour left holding a dark
+      // SURFACE token (which would render invisible on its own background)
+      light: {
+        color: Object.assign({}, build(ROWS_BG, false), build(ROWS_FG, false)),
+        other: build(ROWS_BG, false)
+      }
+    };
+    // an element painted on gold or on a light translucent pill keeps its dark
+    // text — only the surface changes
+    const keepsDarkText = (css) =>
+      /background[^;]*(#b89552|#c9a661|rgb\(184, ?149, ?82|rgba\(184, ?149, ?82|rgb\(201, ?166, ?97|rgba\(201, ?166, ?97|rgba\(248|rgba\(255)/i.test(css);
+    const LIGHT_TOKEN = new RegExp(
+      ROWS_BG.concat(ROWS_FG)
+        .flatMap(([lh, lr]) => [lh, lr.replace(/[()]/g, "\\$&")])
+        .join("|"), "i");
+    const remapValue = (prop, val, css) => {
+      if (prop === "color" && keepsDarkText(css)) return val;
+      const map = prop === "color" ? MAPS.dark.color : MAPS.dark.other;
+      let out = val;
+      Object.keys(map).forEach((k) => { out = out.split(k).join(map[k]); });
+      return out;
+    };
+    // whole-attribute variant, used for hover repaint only
+    const remap = (css, dir) =>
+      css.split(";").map((decl) => {
+        const i = decl.indexOf(":");
+        if (i < 0) return decl;
+        const prop = decl.slice(0, i).trim().toLowerCase();
+        if (dir !== "dark") return decl;
+        return decl.slice(0, i) + ":" + remapValue(prop, decl.slice(i + 1), css);
+      }).join(";");
+
+    this.applyTheme = (dark) => {
+      this.dark = dark;
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      document.body.style.background = dark ? "#0E0E0D" : "#F8F8F6";
+      document.body.style.color = dark ? "#F1F0ED" : "#111111";
+      /* Light is RESTORED from a per-property snapshot of the authored value,
+         never derived by reversing the dark map — reversing is ambiguous and
+         was turning dark section text into #111111 on #111111. */
+      document.querySelectorAll("[style]").forEach((el) => {
+        if (el.hasAttribute("data-theme-icon")) return;
+        let rec = this.themeSnap.get(el);
+        const s = el.style;
+        for (let i = 0; i < s.length; i++) {
+          const prop = s[i];
+          const val = s.getPropertyValue(prop);
+          if (!LIGHT_TOKEN.test(val)) continue;       // already dark, or colourless
+          if (!rec) { rec = {}; this.themeSnap.set(el, rec); }
+          rec[prop] = val;                             // authoritative light value
+        }
+        if (!rec) return;
+        const css = el.getAttribute("style") || "";
+        Object.keys(rec).forEach((prop) => {
+          const light = rec[prop];
+          const want = dark ? remapValue(prop, light, css) : light;
+          if (s.getPropertyValue(prop) !== want) s.setProperty(prop, want);
+        });
+      });
+      const btn = document.querySelector("[data-theme-toggle]");
+      if (btn) {
+        btn.setAttribute("aria-pressed", String(dark));
+        btn.setAttribute("aria-label", dark ? "Ganti mode terang" : "Ganti mode gelap");
+        const moon = btn.querySelector("[data-theme-icon='moon']");
+        const sun = btn.querySelector("[data-theme-icon='sun']");
+        if (moon) moon.style.display = dark ? "none" : "block";
+        if (sun) sun.style.display = dark ? "block" : "none";
+      }
+      document.querySelectorAll("iframe[data-model]").forEach((fr) => {
+        try { fr.contentWindow.postMessage({ ranati: "theme", dark: dark }, "*"); } catch (e) {}
+      });
+      try { localStorage.setItem("ranati-theme", dark ? "dark" : "light"); } catch (e) {}
+    };
+
+    window.addEventListener("message", (e) => {
+      if (e.data && e.data.ranati === "model-ready" && this.dark) {
+        document.querySelectorAll("iframe[data-model]").forEach((fr) => {
+          try { fr.contentWindow.postMessage({ ranati: "theme", dark: true }, "*"); } catch (err) {}
+        });
+      }
+    });
+    /* Hover/focus styles are re-applied by React from the template's literals,
+       so a hovered element momentarily returns to light paint — remap it as it
+       happens (the mapping is idempotent, so this is a no-op in light mode). */
+    const repaint = (e) => {
+      if (!this.dark) return;
+      let el = e.target;
+      for (let i = 0; i < 3 && el && el.getAttribute; i++) {
+        if (el.hasAttribute("style") && !el.hasAttribute("data-theme-icon")) {
+          const cur = el.getAttribute("style");
+          const next = remap(cur, "dark");
+          if (next !== cur) el.setAttribute("style", next);
+        }
+        el = el.parentElement;
+      }
+    };
+    document.addEventListener("mouseover", repaint, true);
+    document.addEventListener("mouseout", repaint, true);
+    document.addEventListener("focusin", repaint, true);
+
+    this.applyTheme(this.state.dark);
+  }
+
+  // React re-renders (Tweaks, nav, hot reload) restore the template's light
+  // inline styles, so the theme is re-applied after every commit.
+  componentDidUpdate() {
+    if (this.applyTheme) this.applyTheme(this.state.dark);
+  }
+
+  // Embedded 3D maquettes: the iframe stays pointer-inert until the visitor
+  // activates it, so orbit/zoom never steals page scroll.
+  initModels() {
+    // fullscreen requests from the embedded 3D maquettes
+    if (!this.fsBound) {
+      this.fsBound = true;
+      // CSS "fullscreen": the model's container expands to cover the viewport.
+      // Native fullscreen is unreliable inside nested app frames.
+      /* HOST is authoritative for fullscreen: it owns the on/off boolean per
+         wrapper, toggles on every request, and tells the iframe what state to
+         show. Immune to iframe reloads, stale caches, or missed messages. */
+      this.fsSaved = null; // { el, css, frame }
+      const fsOff = () => {
+        if (!this.fsSaved) return;
+        this.fsSaved.el.setAttribute("style", this.fsSaved.css);
+        try { this.fsSaved.frame.contentWindow.postMessage({ ranati: "fullscreen-state", on: false }, "*"); } catch (err) {}
+        this.fsSaved = null;
+        document.body.style.overflow = "";
+        if (this.dark) this.applyTheme(true);
+      };
+      const fsOn = (wrap, frame) => {
+        this.fsSaved = { el: wrap, css: wrap.getAttribute("style"), frame: frame };
+        wrap.style.position = "fixed";
+        wrap.style.inset = "0";
+        wrap.style.zIndex = "9999";
+        wrap.style.height = "100vh";
+        wrap.style.maxWidth = "none";
+        wrap.style.borderRadius = "0";
+        wrap.style.border = "0";
+        document.body.style.overflow = "hidden";
+        try { frame.contentWindow.postMessage({ ranati: "fullscreen-state", on: true }, "*"); } catch (err) {}
+      };
+      window.addEventListener("message", (e) => {
+        if (!e.data || e.data.ranati !== "fullscreen-toggle") return;
+        const src = Array.from(document.querySelectorAll("iframe[data-model]"))
+          .find((f) => f.contentWindow === e.source);
+        if (!src) return;
+        const wrap = src.parentElement;
+        if (this.fsSaved && this.fsSaved.el === wrap) { fsOff(); return; }
+        if (this.fsSaved) fsOff();
+        fsOn(wrap, src);
+        // the iframe must receive input directly while fullscreen
+        const key = src.getAttribute("data-model");
+        const veil = document.querySelector("[data-model-veil='" + key + "']");
+        const rel = document.querySelector("[data-model-release='" + key + "']");
+        src.style.pointerEvents = "auto";
+        if (veil) { veil.style.opacity = "0"; veil.style.pointerEvents = "none"; }
+        if (rel) rel.style.display = "flex";
+      });
+      window.addEventListener("keydown", (e) => { if (e.key === "Escape") fsOff(); });
+      // an iframe reload while fullscreen would strand the expanded wrapper
+      document.querySelectorAll("iframe[data-model]").forEach((fr) => {
+        fr.addEventListener("load", () => {
+          if (this.fsSaved && this.fsSaved.frame === fr) fsOff();
+        });
+      });
+    }
+    document.querySelectorAll("[data-model-veil]").forEach((veil) => {
+      const key = veil.getAttribute("data-model-veil");
+      const frame = document.querySelector("[data-model='" + key + "']");
+      const release = document.querySelector("[data-model-release='" + key + "']");
+      if (!frame || !release) return;
+      const setActive = (on) => {
+        frame.style.pointerEvents = on ? "auto" : "none";
+        veil.style.opacity = on ? "0" : "1";
+        veil.style.pointerEvents = on ? "none" : "auto";
+        release.style.display = on ? "flex" : "none";
+      };
+      veil.addEventListener("click", () => setActive(true));
+      release.addEventListener("click", () => setActive(false));
+      window.addEventListener("keydown", (e) => { if (e.key === "Escape") setActive(false); });
+    });
+  }
+
+  initHotspots() {
+    const dim = document.querySelector("[data-plan-dim]");
+    const hots = Array.from(document.querySelectorAll("[data-hot]"));
+    const legs = Array.from(document.querySelectorAll("[data-legend]"));
+    const set = (i) => {
+      hots.forEach((h) => {
+        const on = String(i) === h.getAttribute("data-hot");
+        h.style.transform = on ? "scale(1.55)" : "scale(1)";
+        h.style.boxShadow = on ? "0 0 0 10px rgba(184,149,82,0.28)" : "none";
+        h.style.background = on || i === null ? "rgba(184,149,82,0.9)" : "rgba(184,149,82,0.45)";
+      });
+      legs.forEach((l) => {
+        const on = String(i) === l.getAttribute("data-legend");
+        l.style.background = on ? (this.dark ? "#22222A" : "#F8F8F6") : "transparent";
+      });
+      if (dim) dim.style.background = i === null ? "rgba(9,14,10,0)" : "rgba(9,14,10,0.42)";
+    };
+    hots.concat(legs).forEach((el) => {
+      const i = el.getAttribute("data-hot") || el.getAttribute("data-legend");
+      el.addEventListener("pointerenter", () => set(i));
+      el.addEventListener("pointerleave", () => set(null));
+    });
+  }
+
+  initRing() {
+    const stage = document.querySelector("[data-ring-stage]");
+    this.ring = document.querySelector("[data-ring]");
+    if (!stage || !this.ring) return;
+    this.ringItems = Array.from(document.querySelectorAll("[data-ring-item]"));
+    const layout = () => {
+      const w = Math.min(400, Math.max(260, window.innerWidth * 0.32));
+      this.ringRadius = Math.round(w * 1.18);
+      this.ringItems.forEach((el, i) => {
+        el.style.width = w + "px";
+        el.style.height = Math.round(w * 1.25) + "px";
+        el.style.marginLeft = -w / 2 + "px";
+        el.style.marginTop = -Math.round(w * 1.25) / 2 + "px";
+        el.style.transform = "rotateY(" + i * 60 + "deg) translateZ(" + this.ringRadius + "px)";
+      });
+    };
+    layout();
+    this.onResize = layout;
+    window.addEventListener("resize", this.onResize);
+    let dragging = false, lastX = 0;
+    stage.addEventListener("pointerdown", (e) => {
+      dragging = true; lastX = e.clientX; stage.style.cursor = "grabbing";
+      stage.setPointerCapture(e.pointerId);
+    });
+    stage.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      this.ringTarget += (e.clientX - lastX) * 0.22;
+      lastX = e.clientX;
+    });
+    const end = (e) => { dragging = false; stage.style.cursor = "grab"; this.ringTarget = Math.round(this.ringTarget / 60) * 60; };
+    stage.addEventListener("pointerup", end);
+    stage.addEventListener("pointercancel", end);
+  }
+
+  tick() {
+    this.raf = requestAnimationFrame(this.tick);
+    if (document.hidden) return; // hemat baterai saat tab tak aktif
+
+    // Parallax + tilt hanya untuk perangkat berkursor (desktop). Di HP/tablet dilewati
+    // agar mulus (menghindari getBoundingClientRect tiap frame = layout thrashing).
+    if (!this.reduced && !this.isTouch) {
+      this.smooth.x += (this.pointer.x - this.smooth.x) * 0.075;
+      this.smooth.y += (this.pointer.y - this.smooth.y) * 0.075;
+      const px = this.smooth.x, py = this.smooth.y;
+
+      // Cache node list; refresh berkala (tahan re-render React) daripada query tiap frame.
+      if (!this._sceneList || (this._nf = (this._nf || 0) + 1) > 120) {
+        this._sceneList = document.querySelectorAll("[data-scene]");
+        this._tiltList = document.querySelectorAll("[data-tilt]");
+        this._nf = 0;
+      }
+      const vh = window.innerHeight, vw = window.innerWidth;
+      this._sceneList.forEach((scene) => {
+        const r = scene.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > vh + 200) return;
+        const inner = scene.querySelector("[data-scene-inner]");
+        if (inner) inner.style.transform = "rotateY(" + (px * 3.2) + "deg) rotateX(" + (-py * 2.2) + "deg)";
+        scene.querySelectorAll("[data-depth]").forEach((l) => {
+          const d = parseFloat(l.getAttribute("data-depth")) || 0;
+          const sy = ((r.top + r.height / 2) / vh - 0.5) * -1;
+          l.style.transform = "translate3d(" + (-px * d * 26) + "px," + (-py * d * 18 + sy * d * 22) + "px," + (d * 24) + "px)";
+        });
+      });
+      this._tiltList.forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > vh) return;
+        const cx = (r.left + r.width / 2) / vw * 2 - 1;
+        const cy = (r.top + r.height / 2) / vh * 2 - 1;
+        const dx = (px - cx) * 0.55, dy = (py - cy) * 0.55;
+        el.style.transform = "perspective(1100px) rotateY(" + (dx * 5.5) + "deg) rotateX(" + (-dy * 4) + "deg)";
+      });
+    }
+
+    // Ring carousel (interaktif, tetap jalan termasuk di HP saat digeser).
+    if (this.ring) {
+      const diff = this.ringTarget - this.ringAngle;
+      if (Math.abs(diff) > 0.01) {
+        this.ringAngle += diff * 0.08;
+        this.ring.style.transform = "translateZ(-" + this.ringRadius + "px) rotateY(" + this.ringAngle + "deg)";
+        const norm = ((-this.ringAngle % 360) + 360) % 360;
+        this.ringItems.forEach((el, i) => {
+          let d = Math.abs(((i * 60 - norm + 540) % 360) - 180);
+          const front = 1 - Math.min(1, d / 90);
+          el.style.opacity = String(0.32 + front * 0.68);
+          el.style.boxShadow = front > 0.8 ? "0 50px 90px -40px rgba(17,17,17,0.6)" : "none";
+        });
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    window.removeEventListener("pointermove", this.onMove);
+    if (this.layoutGrids) window.removeEventListener("resize", this.layoutGrids);
+    if (this.onResize) window.removeEventListener("resize", this.onResize);
+    if (this.io) this.io.disconnect();
+  }
+}
+
+</script>
+</body>
+</html>

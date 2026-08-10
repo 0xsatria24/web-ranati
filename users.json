@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "email": "muhammadsatria489@gmail.com",
+      "salt": "1dad3bd3e6810e40828ddf5f23a36dd6",
+      "derived": "cf7f9ba6cefef48d074cec84cf5eeb61ec09e9943b76cb32d09a8b1545c666486d6b15afa8d65ac140f056b6ce5607965eff5979dc7a0c44e6afd87fd014cc6a",
+      "createdAt": 1786109311301
+    }
+  ],
+  "tokens": {
+    "3fd8928598e25d2dea2a63bd7eb5a6914a8de98a76229b13": "muhammadsatria489@gmail.com"
+  }
+}
