@@ -378,26 +378,8 @@ var SCHEMA = [
     { key:"hero_cta", label:"Tombol", type:"text", def:"Jelajahi Masterplan" },
     { key:"hero_media", label:"Gambar/Video", type:"media" },
   ]},
-  { group:"Hero — Label di Gambar", fields:[
-    { key:"hero_badge1", label:"Badge atas", type:"text", def:"Marina Bay · 120 Ha" },
-    { key:"hero_badge2", label:"Badge bawah", type:"text", def:"Superyacht Harbour" },
-    { key:"hero_note_title", label:"Kartu — judul", type:"text", def:"Kabupaten Belitung" },
-    { key:"hero_note_body", label:"Kartu — teks", type:"area", def:"Lanskap alam premium, keberlanjutan ekologi, dan konektivitas modern." },
-  ]},
-  { group:"Statistik", fields:[
-    { key:"stat1_value", label:"Statistik 1 · nilai", type:"text", def:"714" },
-    { key:"stat1_label", label:"Statistik 1 · label", type:"text", def:"Hektar Lahan Strategis" },
-    { key:"stat2_value", label:"Statistik 2 · nilai", type:"text", def:"120" },
-    { key:"stat2_label", label:"Statistik 2 · label", type:"text", def:"Hektar Marina Bay" },
-    { key:"stat3_value", label:"Statistik 3 · nilai", type:"text", def:"6" },
-    { key:"stat3_label", label:"Statistik 3 · label", type:"text", def:"Zona Utama" },
-  ]},
-  { group:"Proyek Unggulan", fields:[
-    { key:"project_kicker", label:"Eyebrow", type:"text", def:"Proyek Unggulan" },
-    { key:"project_title", label:"Judul", type:"text", def:"Marina Bay" },
-    { key:"project_body", label:"Deskripsi", type:"area", def:"Detak jantung bahari PT Ranati. Fasilitas bersandar kelas dunia untuk superyacht, kompleks komersial terapung, Culinary Market, Art Village, dan Convention Center megah." },
-    { key:"project_cta", label:"Tombol", type:"text", def:"Lihat Zona 1" },
-    { key:"project_media", label:"Gambar/Video", type:"media" },
+  { group:"Ringkasan", fields:[
+    { key:"intro_body", label:"Teks ringkasan (di bawah hero)", type:"area", def:"Lebih dari sekadar resort — PT Ranati adalah ekosistem premium yang merayakan alam, budaya, inovasi, dan komunitas dalam satu destinasi terintegrasi kelas dunia di Kabupaten Belitung." },
   ]},
   { group:"Investasi", fields:[
     { key:"invest_kicker", label:"Eyebrow", type:"text", def:"Investasi" },
@@ -434,9 +416,15 @@ var SCHEMA = [
     { key:"home_zone6_title", label:"Zona 6 · judul", type:"text", def:"Komunitas & Hunian Terintegrasi" },
     { key:"home_zone6_desc", label:"Zona 6 · deskripsi", type:"area", def:"Mosque (M) · Hospital & School (N) · Apartments (R) · Financial Service (O)" },
   ]},
-  { group:"Gambar Berita (Home)", fields:[
+  { group:"Berita (Home)", fields:[
+    { key:"news1_date", label:"Berita 1 · tanggal/label", type:"text", def:"Placeholder · Isi nanti" },
+    { key:"news1_title", label:"Berita 1 · judul", type:"text", def:"Groundbreaking Marina Bay" },
     { key:"news1_media", label:"Berita 1 · gambar", type:"media" },
+    { key:"news2_date", label:"Berita 2 · tanggal/label", type:"text", def:"Placeholder · Isi nanti" },
+    { key:"news2_title", label:"Berita 2 · judul", type:"text", def:"Kemitraan Hospitality Internasional" },
     { key:"news2_media", label:"Berita 2 · gambar", type:"media" },
+    { key:"news3_date", label:"Berita 3 · tanggal/label", type:"text", def:"Placeholder · Isi nanti" },
+    { key:"news3_title", label:"Berita 3 · judul", type:"text", def:"Kerangka Keberlanjutan Diluncurkan" },
     { key:"news3_media", label:"Berita 3 · gambar", type:"media" },
   ]},
   { group:"Footer / Kontak", fields:[

@@ -108,8 +108,58 @@
     });
   }
 
+  // ---- KOLEKSI (Kelola Zona / Kelola Berita) ----
+  var collections = { zones: null, news: null };
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  };
+  function mediaTag(url, alt, imgStyle) {
+    var u = String(url || "");
+    if (isVideo(u)) {
+      return '<video muted autoplay loop playsinline src="' + esc(u) +
+        '" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover"></video>';
+    }
+    return '<img loading="lazy" src="' + esc(u) + '" alt="' + esc(alt) +
+      '" style="' + imgStyle + '" />';
+  }
+  function zoneCard(it, i) {
+    var label = it.index ? ("ZONA " + esc(it.index)) : ("ZONA " + (i + 1));
+    return '<li data-reveal="true"><a href="#/zona" data-goto="zona" data-tilt="true" ' +
+      'style="display:block; position:relative; height:330px; border-radius:18px; overflow:hidden; background:#111111; will-change:transform">' +
+      mediaTag(it.media, it.title, "position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)") +
+      '<span style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.9) 0%, rgba(17,17,17,0.05) 62%)"></span>' +
+      '<span style="position:absolute; left:24px; right:24px; bottom:24px; color:#F8F8F6">' +
+      '<span style="display:block; font-size:11px; letter-spacing:0.24em; color:#B89552; margin-bottom:9px">' + label + '</span>' +
+      '<span style="display:block; font-size:20px; font-weight:400; line-height:1.25">' + esc(it.title) + '</span>' +
+      '<span style="display:block; font-size:12.5px; font-weight:300; color:rgba(248,248,246,0.7); margin-top:8px">' + esc(it.desc) + '</span>' +
+      '</span></a></li>';
+  }
+  function newsCard(it) {
+    return '<li data-reveal="true">' +
+      '<div data-tilt="true" style="position:relative; height:250px; border-radius:18px; overflow:hidden; background:#E7E7E7; margin-bottom:18px; will-change:transform">' +
+      mediaTag(it.media, "", "filter:saturate(0.7) contrast(1.02) sepia(0.06)") +
+      '</div>' +
+      '<span style="display:block; font-size:11px; color:#B89552; letter-spacing:0.18em; text-transform:uppercase; margin-bottom:9px">' + esc(it.date) + '</span>' +
+      '<h3 style="font-size:19px; font-weight:400; line-height:1.35">' + esc(it.title) + '</h3>' +
+      '</li>';
+  }
+  function renderCollection(gridId, items, cardFn) {
+    var grid = document.getElementById(gridId);
+    if (!grid || !Array.isArray(items) || !items.length) return; // kosong -> pertahankan kartu statis
+    var sig = "c" + items.length + ":" + items.map(function (it) {
+      return (it.id || "") + (it.updatedAt || "");
+    }).join(",");
+    if (grid.getAttribute("data-col-sig") === sig) return; // sudah dirender, tak ada perubahan
+    grid.innerHTML = items.map(cardFn).join("");
+    grid.setAttribute("data-col-sig", sig);
+  }
+
   function apply() {
     document.querySelectorAll("#dc-root [data-cms]").forEach(applyEl);
+    renderCollection("home-zones-grid", collections.zones, zoneCard);
+    renderCollection("home-news-grid", collections.news, newsCard);
     wireContact();
   }
 
@@ -129,10 +179,20 @@
     })();
   }
 
-  fetch("/api/content", { cache: "no-store" })
-    .then(function (r) { return r.json(); })
-    .then(function (c) { content = c || {}; boot(); })
-    .catch(function () { boot(); });
+  function fetchJson(url) {
+    return fetch(url, { cache: "no-store" }).then(function (r) { return r.json(); });
+  }
+
+  Promise.all([
+    fetchJson("/api/content").catch(function () { return {}; }),
+    fetchJson("/api/collections/zones").catch(function () { return []; }),
+    fetchJson("/api/collections/news").catch(function () { return []; })
+  ]).then(function (res) {
+    content = res[0] || {};
+    collections.zones = Array.isArray(res[1]) ? res[1] : [];
+    collections.news = Array.isArray(res[2]) ? res[2] : [];
+    boot();
+  }).catch(function () { boot(); });
 
   // Catat 1 kunjungan per pemuatan halaman (analitik traffic dashboard admin).
   try { fetch("/api/track", { method: "POST", keepalive: true }).catch(function () {}); } catch (e) {}
