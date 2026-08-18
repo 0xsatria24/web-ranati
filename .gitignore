@@ -1,2 +1,5 @@
 .vercel
 .env*
+node_modules
+db-config.json
+users.json
