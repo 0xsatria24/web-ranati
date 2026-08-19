@@ -3,3 +3,5 @@
 node_modules
 db-config.json
 users.json
+assets/Screenshot_*
+assets/test-*

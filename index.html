@@ -1,12 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RANATI — Destinasi Terpadu Masa Depan Belitung</title>
+<meta name="description" content="RANATI adalah destinasi terpadu ±714 hektar di Kabupaten Belitung — marina superyacht, hunian eksklusif, rekreasi, dan investasi kelas dunia dalam enam zona." />
+<!-- GANTI URL di bawah (og:url, canonical, sitemap.xml) begitu domain produksi sudah ada. -->
+<link rel="canonical" href="https://YOUR-DOMAIN.example/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="RANATI" />
+<meta property="og:title" content="RANATI — Destinasi Terpadu Masa Depan Belitung" />
+<meta property="og:description" content="±714 hektar · Enam zona · Marina superyacht, hunian eksklusif, rekreasi, dan investasi kelas dunia di Kabupaten Belitung." />
+<meta property="og:image" content="https://YOUR-DOMAIN.example/assets/hero-marina-sunset.jpg" />
+<meta property="og:url" content="https://YOUR-DOMAIN.example/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="RANATI — Destinasi Terpadu Masa Depan Belitung" />
+<meta name="twitter:description" content="±714 hektar · Enam zona · Marina superyacht, hunian eksklusif, rekreasi, dan investasi kelas dunia di Kabupaten Belitung." />
+<meta name="twitter:image" content="https://YOUR-DOMAIN.example/assets/hero-marina-sunset.jpg" />
+<meta name="theme-color" content="#111111" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23111111'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Georgia,serif' fill='%23B89552' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E" />
 <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 <script src="./support.js"></script>
 <script src="./site-content.js" defer></script>
+<script src="./contact.js" defer></script>
 </head>
 <body>
 <x-dc>
@@ -27,6 +44,11 @@
   [data-reveal] { opacity:0; transform:translateY(30px); transition:opacity .9s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1); }
   [data-reveal].is-in { opacity:1; transform:none; }
   @media (prefers-reduced-motion: reduce) { [data-reveal] { opacity:1; transform:none; transition:none; } }
+  /* Sembunyikan UI bawaan Google Translate (banner atas & highlight) — kita pakai tombol EN/ID sendiri. */
+  .goog-te-banner-frame, .goog-te-gadget-icon { display:none !important; }
+  body { top:0 !important; }
+  .goog-text-highlight { background:none !important; box-shadow:none !important; }
+  .skiptranslate iframe { display:none !important; }
 </style>
 </helmet>
 
@@ -41,8 +63,12 @@
         <a href="#/zona" data-goto="zona" data-nav="zona" style="font-size:12.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#F8F8F6; opacity:0.6; transition:opacity .3s">Zona</a>
         <a href="#/investasi" data-goto="investasi" data-nav="investasi" style="font-size:12.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#F8F8F6; opacity:0.6; transition:opacity .3s">Investasi</a>
         <a href="#/berita" data-goto="berita" data-nav="berita" style="font-size:12.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#F8F8F6; opacity:0.6; transition:opacity .3s">Berita</a>
+        <a href="#/galeri" data-goto="galeri" data-nav="galeri" style="font-size:12.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#F8F8F6; opacity:0.6; transition:opacity .3s">Galeri</a>
         <a href="#/kontak" data-goto="kontak" data-nav="kontak" style="font-size:12.5px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:#F8F8F6; opacity:0.6; transition:opacity .3s">Kontak</a>
       </nav>
+      <button type="button" onclick="window.setSiteLang && window.setSiteLang(window.__siteLang==='en'?'id':'en')" aria-label="Ganti bahasa / switch language" style="width:40px; height:40px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:999px; border:1px solid rgba(248,248,246,0.35); background:transparent; color:#F8F8F6; cursor:pointer; transition:border-color .3s; font-size:11px; font-weight:600; letter-spacing:0.04em">
+        <span class="notranslate" translate="no" id="langToggleLabel">EN</span>
+      </button>
       <button data-theme-toggle="true" type="button" onClick="{{ toggleTheme }}" aria-label="Ganti mode gelap" aria-pressed="false" style="width:40px; height:40px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:999px; border:1px solid rgba(248,248,246,0.35); background:transparent; color:#F8F8F6; cursor:pointer; transition:border-color .3s">
         <svg data-theme-icon="moon" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.2 10.1A5.6 5.6 0 0 1 5.9 2.8 5.6 5.6 0 1 0 13.2 10.1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path></svg>
         <svg data-theme-icon="sun" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="display:none"><circle cx="8" cy="8" r="3.1" stroke="currentColor" stroke-width="1.2"></circle><path d="M8 1v1.7M8 13.3V15M1 8h1.7M13.3 8H15M3.1 3.1l1.2 1.2M11.7 11.7l1.2 1.2M12.9 3.1l-1.2 1.2M4.3 11.7l-1.2 1.2" stroke="currentColor" stroke-width="1.2"></path></svg>
@@ -60,7 +86,11 @@
     <a href="#/zona" data-goto="zona" style="font-size:28px; font-weight:300; color:#F8F8F6; padding:14px 0; border-bottom:1px solid rgba(248,248,246,0.10)">Zona</a>
     <a href="#/investasi" data-goto="investasi" style="font-size:28px; font-weight:300; color:#F8F8F6; padding:14px 0; border-bottom:1px solid rgba(248,248,246,0.10)">Investasi</a>
     <a href="#/berita" data-goto="berita" style="font-size:28px; font-weight:300; color:#F8F8F6; padding:14px 0; border-bottom:1px solid rgba(248,248,246,0.10)">Berita</a>
+    <a href="#/galeri" data-goto="galeri" style="font-size:28px; font-weight:300; color:#F8F8F6; padding:14px 0; border-bottom:1px solid rgba(248,248,246,0.10)">Galeri</a>
     <a href="#/kontak" data-goto="kontak" style="font-size:28px; font-weight:300; color:#F8F8F6; padding:14px 0">Kontak</a>
+    <button type="button" onclick="window.setSiteLang && window.setSiteLang(window.__siteLang==='en'?'id':'en')" style="align-self:flex-start; margin-top:20px; display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; padding:10px 18px; border-radius:999px; border:1px solid rgba(248,248,246,0.35); background:transparent; color:#F8F8F6; cursor:pointer">
+      <span class="notranslate" translate="no" id="langToggleLabelMobile">English</span>
+    </button>
     <span style="margin-top:26px; font-size:11px; letter-spacing:0.28em; text-transform:uppercase; color:#B89552">RANATI — Belitung</span>
   </nav>
 
@@ -124,7 +154,7 @@
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
         </a>
       </div>
-      <ul data-grid="cards3" id="home-zones-grid" data-cms-zones="zones" style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px">
+      <ul data-grid="cards3" id="home-zones-grid" style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px">
         <li data-reveal="true"><a href="#/zona1" data-goto="zona1" data-tilt="true" style="display:block; position:relative; height:330px; border-radius:18px; overflow:hidden; background:#111111; will-change:transform">
           <img loading="lazy" src="assets/zone1-marina.jpg" data-cms="home_zone1_media" data-cms-default="assets/zone1-marina.jpg" alt="Zona 1 Marina Bay" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)" />
           <span style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.9) 0%, rgba(17,17,17,0.05) 62%)"></span>
@@ -212,7 +242,7 @@
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
         </a>
       </div>
-      <ul data-grid="cards3" id="home-news-grid" data-cms-news="news" style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px">
+      <ul data-grid="cards3" id="home-news-grid" style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px">
         <li data-reveal="true">
           <div data-tilt="true" style="height:250px; border-radius:18px; overflow:hidden; background:#E7E7E7; margin-bottom:18px; will-change:transform">
             <img loading="lazy" src="assets/zone1-marina.jpg" data-cms="news1_media" data-cms-default="assets/zone1-marina.jpg" alt="" style="filter:saturate(0.7) contrast(1.02) sepia(0.06)" />
@@ -327,20 +357,20 @@
 
     <section style="padding:clamp(60px,7vw,100px) 0 clamp(40px,5vw,70px); overflow:hidden">
       <div style="max-width:1400px; margin:0 auto; padding:0 clamp(20px,4vw,64px); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px 40px; margin-bottom:34px">
-        <p style="max-width:520px; font-size:16px; font-weight:300; color:#777777; line-height:1.7; text-wrap:pretty">Seret cincin untuk memutar keenam zona, atau pilih dari daftar di bawah.</p>
+        <p style="max-width:520px; font-size:16px; font-weight:300; color:#777777; line-height:1.7; text-wrap:pretty">Geser untuk menjelajahi keenam zona, atau pilih dari daftar di bawah.</p>
         <div style="display:flex; align-items:center; gap:12px">
-          <button onClick="{{ ringPrev }}" aria-label="Zona sebelumnya" style="width:48px; height:48px; border-radius:999px; border:1px solid #E7E7E7; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#111111; transition:border-color .35s, background .35s" style-hover="border-color:#111111; background:#111111; color:#F8F8F6">
+          <button onClick="{{ slidePrev }}" aria-label="Zona sebelumnya" style="width:48px; height:48px; border-radius:999px; border:1px solid #E7E7E7; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#111111; transition:border-color .35s, background .35s" style-hover="border-color:#111111; background:#111111; color:#F8F8F6">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8H3M3 8L7 4M3 8L7 12" stroke="currentColor" stroke-width="1.3"></path></svg>
           </button>
-          <button onClick="{{ ringNext }}" aria-label="Zona berikutnya" style="width:48px; height:48px; border-radius:999px; border:1px solid #E7E7E7; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#111111; transition:border-color .35s, background .35s" style-hover="border-color:#111111; background:#111111; color:#F8F8F6">
+          <button onClick="{{ slideNext }}" aria-label="Zona berikutnya" style="width:48px; height:48px; border-radius:999px; border:1px solid #E7E7E7; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#111111; transition:border-color .35s, background .35s" style-hover="border-color:#111111; background:#111111; color:#F8F8F6">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" stroke-width="1.3"></path></svg>
           </button>
         </div>
       </div>
 
-      <div data-ring-stage="true" style="position:relative; height:clamp(460px,56vw,580px); perspective:1800px; perspective-origin:50% 45%; cursor:grab; user-select:none; touch-action:pan-y">
-        <div data-ring="true" style="position:absolute; top:50%; left:50%; width:0; height:0; transform-style:preserve-3d; will-change:transform">
-          <article data-ring-item="0" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+      <ul id="zona-slider" data-slider="zona" style="display:flex; gap:20px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; list-style:none; padding:4px clamp(20px,4vw,64px) 20px; margin:0">
+        <li style="flex:0 0 auto; scroll-snap-align:start; width:min(400px,82vw)">
+          <article style="position:relative; height:clamp(420px,52vw,500px); border-radius:20px; overflow:hidden; background:#111111">
             <img loading="lazy" src="assets/zone1-marina.jpg" alt="Zona 1 Marina Bay" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)" />
             <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
             <div style="position:absolute; left:28px; right:28px; bottom:28px; color:#F8F8F6">
@@ -349,7 +379,9 @@
               <p style="font-size:12.5px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:9px">120 Ha marina · Superyacht · Waterfront Hotels</p>
             </div>
           </article>
-          <article data-ring-item="1" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+        </li>
+        <li style="flex:0 0 auto; scroll-snap-align:start; width:min(400px,82vw)">
+          <article style="position:relative; height:clamp(420px,52vw,500px); border-radius:20px; overflow:hidden; background:#111111">
             <img loading="lazy" src="assets/zone2-residence.jpg" alt="Zona 2 Hunian Eksklusif" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)" />
             <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
             <div style="position:absolute; left:28px; right:28px; bottom:28px; color:#F8F8F6">
@@ -358,7 +390,9 @@
               <p style="font-size:12.5px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:9px">Exclusive Villas · Saphire Residence · Resor 4–5 Star</p>
             </div>
           </article>
-          <article data-ring-item="2" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+        </li>
+        <li style="flex:0 0 auto; scroll-snap-align:start; width:min(400px,82vw)">
+          <article style="position:relative; height:clamp(420px,52vw,500px); border-radius:20px; overflow:hidden; background:#111111">
             <img loading="lazy" src="assets/zone3-themepark.jpg" alt="Zona 3 Rekreasi" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)" />
             <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
             <div style="position:absolute; left:28px; right:28px; bottom:28px; color:#F8F8F6">
@@ -367,7 +401,9 @@
               <p style="font-size:12.5px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:9px">Themepark (H) · Botanical Garden (B) · Sport Center (I)</p>
             </div>
           </article>
-          <article data-ring-item="3" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+        </li>
+        <li style="flex:0 0 auto; scroll-snap-align:start; width:min(400px,82vw)">
+          <article style="position:relative; height:clamp(420px,52vw,500px); border-radius:20px; overflow:hidden; background:#111111">
             <img loading="lazy" src="assets/zone4-market.jpg" alt="Zona 4 Pasar Seni" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)" />
             <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
             <div style="position:absolute; left:28px; right:28px; bottom:28px; color:#F8F8F6">
@@ -376,7 +412,9 @@
               <p style="font-size:12.5px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:9px">Authentic Market (Q) · Convention Center (P)</p>
             </div>
           </article>
-          <article data-ring-item="4" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+        </li>
+        <li style="flex:0 0 auto; scroll-snap-align:start; width:min(400px,82vw)">
+          <article style="position:relative; height:clamp(420px,52vw,500px); border-radius:20px; overflow:hidden; background:#111111">
             <img loading="lazy" src="assets/zone5-agro.jpg" alt="Zona 5 Agro-Tourism" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)" />
             <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
             <div style="position:absolute; left:28px; right:28px; bottom:28px; color:#F8F8F6">
@@ -385,7 +423,9 @@
               <p style="font-size:12.5px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:9px">Organic Agro (J) · Nursing Village (C) · Adventure Canal</p>
             </div>
           </article>
-          <article data-ring-item="5" style="position:absolute; width:400px; height:500px; margin-left:-200px; margin-top:-250px; border-radius:20px; overflow:hidden; background:#111111; transition:opacity .5s, box-shadow .5s">
+        </li>
+        <li style="flex:0 0 auto; scroll-snap-align:start; width:min(400px,82vw)">
+          <article style="position:relative; height:clamp(420px,52vw,500px); border-radius:20px; overflow:hidden; background:#111111">
             <img loading="lazy" src="assets/zone6-community.jpg" alt="Zona 6 Komunitas" style="position:absolute; inset:0; filter:saturate(0.74) contrast(1.03) sepia(0.06)" />
             <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(17,17,17,0.88) 0%, rgba(17,17,17,0.05) 62%)"></div>
             <div style="position:absolute; left:28px; right:28px; bottom:28px; color:#F8F8F6">
@@ -394,12 +434,12 @@
               <p style="font-size:12.5px; font-weight:300; color:rgba(248,248,246,0.72); margin-top:9px">Mosque (M) · Hospital &amp; School (N) · Apartments (R)</p>
             </div>
           </article>
-        </div>
-      </div>
+        </li>
+      </ul>
     </section>
 
     <section style="max-width:1400px; margin:0 auto; padding:0 clamp(20px,4vw,64px) clamp(90px,11vw,150px)">
-      <ul style="display:flex; flex-direction:column; border-top:1px solid #E7E7E7">
+      <ul id="zona-list-full" style="display:flex; flex-direction:column; border-top:1px solid #E7E7E7">
         <li><a href="#/zona1" data-goto="zona1" data-zone-row="true" style="display:flex; align-items:center; gap:clamp(16px,3vw,40px); padding:clamp(20px,2.6vw,30px) 0; border-bottom:1px solid #E7E7E7; transition:padding-left .35s" style-hover="padding-left:14px">
           <span style="font-size:11px; letter-spacing:0.2em; color:#B89552; width:34px; flex-shrink:0">01</span>
           <span style="flex:1; min-width:0"><span style="display:block; font-size:clamp(19px,2.2vw,28px); font-weight:300; letter-spacing:-0.01em">Marina Bay &amp; Pusat Bahari Dunia</span><span style="display:block; font-size:13px; color:#777777; margin-top:5px">120 Ha · Superyacht · Floating Commercial · Waterfront Hotels</span></span>
@@ -528,6 +568,22 @@
     </section>
   </main>
 
+  <!-- ══════════════ ZONA — detail dinamis per item (diisi dari panel admin) ══════════════ -->
+  <main data-page="zonaDetail" data-screen-label="Zona" style="display:none">
+    <section style="max-width:900px; margin:0 auto; padding:clamp(140px,16vw,190px) clamp(20px,4vw,64px) 0">
+      <span id="zonaDetail-eyebrow" style="display:block; font-size:12px; font-weight:500; letter-spacing:0.3em; text-transform:uppercase; color:#B89552; margin-bottom:16px">Zona</span>
+      <h1 id="zonaDetail-title" style="font-size:clamp(30px,4.4vw,56px); font-weight:300; line-height:1.1; letter-spacing:-0.02em; color:#111111">—</h1>
+    </section>
+    <section style="max-width:900px; margin:0 auto; padding:clamp(30px,4vw,44px) clamp(20px,4vw,64px) clamp(90px,11vw,150px)">
+      <div id="zonaDetail-gallery" style="display:grid; grid-template-columns:1fr; gap:14px; margin-bottom:clamp(30px,4vw,44px)"></div>
+      <p id="zonaDetail-desc" style="font-size:19px; font-weight:300; color:#111111; line-height:1.6; text-wrap:pretty">Memuat…</p>
+      <div id="zonaDetail-body" style="margin-top:22px; font-size:16px; font-weight:300; color:#555555; line-height:1.85; text-wrap:pretty"></div>
+      <a href="#/zona" data-goto="zona" style="display:inline-flex; align-items:center; gap:10px; margin-top:40px; font-size:12px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; padding:16px 28px; border-radius:999px; border:1px solid #E7E7E7; color:#111111; transition:border-color .35s">
+        <span>← Semua Zona</span>
+      </a>
+    </section>
+  </main>
+
   <!-- ══════════════ INVESTASI ══════════════ -->
   <main data-page="investasi" data-screen-label="Investasi" style="display:none">
     <section style="position:relative; height:58vh; min-height:380px; overflow:hidden; background:#111111">
@@ -583,7 +639,7 @@
       </div>
     </section>
 
-    <section data-grid="cards3" style="max-width:1400px; margin:0 auto; padding:clamp(70px,8vw,120px) clamp(20px,4vw,64px) clamp(90px,11vw,150px); display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(24px,3vw,36px) 22px">
+    <section id="berita-grid-full" data-grid="cards3" style="max-width:1400px; margin:0 auto; padding:clamp(70px,8vw,120px) clamp(20px,4vw,64px) clamp(90px,11vw,150px); display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(24px,3vw,36px) 22px">
       <article data-reveal="true">
         <div data-tilt="true" style="height:250px; border-radius:18px; overflow:hidden; background:#E7E7E7; margin-bottom:18px; will-change:transform">
           <img loading="lazy" src="assets/zone1-marina.jpg" alt="" style="filter:saturate(0.7) contrast(1.02) sepia(0.06)" />
@@ -608,6 +664,24 @@
         <h3 style="font-size:19px; font-weight:400; line-height:1.35; margin-bottom:9px">Kerangka Keberlanjutan Diluncurkan</h3>
         <p style="font-size:14px; font-weight:300; color:#777777; line-height:1.6">Ringkasan berita akan tampil di sini setelah diisi dari panel admin.</p>
       </article>
+    </section>
+  </main>
+
+  <!-- ══════════════ GALERI ══════════════ -->
+  <main data-page="galeri" data-screen-label="Galeri" style="display:none">
+    <section style="position:relative; height:52vh; min-height:340px; overflow:hidden; background:#111111">
+      <img loading="lazy" src="assets/marina-aerial.jpg" alt="Galeri RANATI" style="position:absolute; inset:0; filter:saturate(0.72) contrast(1.03) sepia(0.06)" />
+      <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(17,17,17,0.72) 0%, rgba(17,17,17,0.44) 45%, rgba(17,17,17,0.82) 100%)"></div>
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 clamp(20px,4vw,64px) clamp(40px,5vw,64px); max-width:1400px; margin:0 auto; width:100%">
+        <span style="font-size:12px; font-weight:500; letter-spacing:0.3em; text-transform:uppercase; color:#B89552; margin-bottom:14px">Dokumentasi</span>
+        <h1 style="font-size:clamp(32px,5.2vw,72px); font-weight:300; line-height:1.04; letter-spacing:-0.02em; color:#F8F8F6">Galeri</h1>
+      </div>
+    </section>
+
+    <section style="max-width:1400px; margin:0 auto; padding:clamp(70px,8vw,120px) clamp(20px,4vw,64px) clamp(90px,11vw,150px)">
+      <div id="gallery-groups">
+        <p style="font-size:15px; font-weight:300; color:#777777">Galeri akan tampil di sini setelah diisi dari panel admin.</p>
+      </div>
     </section>
   </main>
 
@@ -693,11 +767,21 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;,&quot;section&quot;:&quot;Tampilan&quot;}}">
+const PAGE_META = {
+  home: { title: "RANATI — Destinasi Terpadu Masa Depan Belitung", desc: "RANATI adalah destinasi terpadu ±714 hektar di Kabupaten Belitung — marina superyacht, hunian eksklusif, rekreasi, dan investasi kelas dunia dalam enam zona." },
+  masterplan: { title: "Masterplan — RANATI Belitung", desc: "Masterplan ±714 hektar RANATI: enam zona terintegrasi di Kabupaten Belitung, dari marina hingga hunian eksklusif." },
+  zona: { title: "Enam Zona — RANATI Belitung", desc: "Jelajahi enam zona utama RANATI: Marina Bay, hunian eksklusif, rekreasi, pasar tradisional, agro-tourism, dan komunitas terintegrasi." },
+  zona1: { title: "Zona 1 — Marina Bay & Pusat Bahari Dunia | RANATI", desc: "Marina Bay & Pusat Bahari Dunia — 120 hektar marina superyacht, waterfront hotel, dan kompleks komersial terapung di RANATI Belitung." },
+  zonaDetail: { title: "Detail Zona — RANATI Belitung", desc: "Detail zona RANATI, destinasi terpadu di Kabupaten Belitung." },
+  investasi: { title: "Investasi — RANATI Belitung", desc: "Peluang investasi di RANATI, destinasi terpadu masa depan Kabupaten Belitung." },
+  berita: { title: "Berita — RANATI Belitung", desc: "Berita dan pembaruan terbaru seputar pengembangan RANATI di Kabupaten Belitung." },
+  galeri: { title: "Galeri — RANATI Belitung", desc: "Galeri dokumentasi progres, fasilitas, dan momen penting RANATI Belitung." },
+  kontak: { title: "Kontak — RANATI Belitung", desc: "Hubungi tim RANATI untuk informasi lebih lanjut mengenai destinasi terpadu di Kabupaten Belitung." },
+};
+
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.ringAngle = 0;
-    this.ringTarget = 0;
     this.page = "home";
     this.menuOpen = false;
     let saved = null;
@@ -710,24 +794,36 @@ class Component extends DCLogic {
       toggleTheme: () => this.setState({ dark: !this.state.dark }),
       toggleMenu: () => this.setMenu(!this.menuOpen),
       noSubmit: (e) => e.preventDefault(),
-      ringPrev: () => { this.ringTarget += 60; },
-      ringNext: () => { this.ringTarget -= 60; }
+      slidePrev: () => { const el = document.querySelector('[data-slider="zona"]'); if (el) el.scrollBy({ left: -420, behavior: "smooth" }); },
+      slideNext: () => { const el = document.querySelector('[data-slider="zona"]'); if (el) el.scrollBy({ left: 420, behavior: "smooth" }); }
     };
+  }
+
+  /* ── Judul/meta per halaman: cuma memengaruhi tab browser & share link,
+     BUKAN indexing Google (situs ini hash-routing, lihat catatan di sitemap.xml). ── */
+  updateMeta(displayKey) {
+    const meta = PAGE_META[displayKey] || PAGE_META.home;
+    document.title = meta.title;
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.setAttribute("content", meta.desc);
   }
 
   /* ── Router: each section is its own page at #/slug ───────────────── */
   routeFromHash() {
     const h = (location.hash || "").replace(/^#\/?/, "").split(/[?&]/)[0];
-    const known = ["home", "masterplan", "zona", "zona1", "investasi", "berita", "kontak"];
+    const known = ["home", "masterplan", "zona", "zona1", "investasi", "berita", "galeri", "kontak"];
+    if (/^zona\/[a-z0-9]+$/i.test(h)) return h; // halaman detail zona dinamis, mis. "zona/a1b2c3"
     return known.indexOf(h) >= 0 ? h : "home";
   }
 
   show(page, push) {
     this.page = page;
+    const isZonaDetail = /^zona\/[a-z0-9]+$/i.test(page);
+    const displayKey = isZonaDetail ? "zonaDetail" : page;
     document.querySelectorAll("[data-page]").forEach((el) => {
-      el.style.display = el.getAttribute("data-page") === page ? "" : "none";
+      el.style.display = el.getAttribute("data-page") === displayKey ? "" : "none";
     });
-    const navKey = page === "zona1" ? "zona" : page;
+    const navKey = (page === "zona1" || isZonaDetail) ? "zona" : page;
     document.querySelectorAll("[data-nav]").forEach((a) => {
       a.style.opacity = a.getAttribute("data-nav") === navKey ? "1" : "0.6";
     });
@@ -735,9 +831,11 @@ class Component extends DCLogic {
       const want = "#/" + (page === "home" ? "" : page);
       if (location.hash !== want) location.hash = want;
     }
+    this.updateMeta(displayKey);
     window.scrollTo(0, 0);
     this.onScroll();
     requestAnimationFrame(() => this.runReveals(true));
+    if (isZonaDetail && window.renderZonaDetail) window.renderZonaDetail(page.split("/")[1]);
   }
 
   runReveals(force) {
@@ -863,7 +961,6 @@ class Component extends DCLogic {
 
     this.initTheme();
     this.initModels();
-    this.initRing();
     this.initHotspots();
     this.show(this.routeFromHash(), false);
     this.tick = this.tick.bind(this);
@@ -1088,44 +1185,6 @@ class Component extends DCLogic {
     });
   }
 
-  initRing() {
-    const stage = document.querySelector("[data-ring-stage]");
-    this.ring = document.querySelector("[data-ring]");
-    if (!stage || !this.ring) return;
-    this.ringItems = Array.from(document.querySelectorAll("[data-ring-item]"));
-    const layout = () => {
-      const w = Math.min(400, Math.max(250, window.innerWidth * 0.32));
-      this.ringRadius = Math.round(w * 1.18);
-      this.ringItems.forEach((el, i) => {
-        el.style.width = w + "px";
-        el.style.height = Math.round(w * 1.25) + "px";
-        el.style.marginLeft = -w / 2 + "px";
-        el.style.marginTop = -Math.round(w * 1.25) / 2 + "px";
-        el.style.transform = "rotateY(" + i * 60 + "deg) translateZ(" + this.ringRadius + "px)";
-      });
-    };
-    layout();
-    this.onResize = layout;
-    window.addEventListener("resize", this.onResize);
-    let dragging = false, lastX = 0;
-    stage.addEventListener("pointerdown", (e) => {
-      dragging = true; lastX = e.clientX; stage.style.cursor = "grabbing";
-      stage.setPointerCapture(e.pointerId);
-    });
-    stage.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
-      this.ringTarget += (e.clientX - lastX) * 0.22;
-      lastX = e.clientX;
-    });
-    const end = () => {
-      dragging = false;
-      stage.style.cursor = "grab";
-      this.ringTarget = Math.round(this.ringTarget / 60) * 60;
-    };
-    stage.addEventListener("pointerup", end);
-    stage.addEventListener("pointercancel", end);
-  }
-
   tick() {
     const k = this.reduced ? 1 : 0.075;
     this.smooth.x += (this.pointer.x - this.smooth.x) * k;
@@ -1153,18 +1212,6 @@ class Component extends DCLogic {
       el.style.transform = "perspective(1100px) rotateY(" + (px - cx) * 0.55 * 5.5 + "deg) rotateX(" + -(py - cy) * 0.55 * 4 + "deg)";
     });
 
-    if (this.ring) {
-      this.ringAngle += (this.ringTarget - this.ringAngle) * 0.08;
-      this.ring.style.transform = "translateZ(-" + this.ringRadius + "px) rotateY(" + this.ringAngle + "deg)";
-      const norm = ((-this.ringAngle % 360) + 360) % 360;
-      this.ringItems.forEach((el, i) => {
-        const d = Math.abs(((i * 60 - norm + 540) % 360) - 180);
-        const front = 1 - Math.min(1, d / 90);
-        el.style.opacity = String(0.32 + front * 0.68);
-        el.style.boxShadow = front > 0.8 ? "0 50px 90px -40px rgba(17,17,17,0.6)" : "none";
-      });
-    }
-
     this.raf = requestAnimationFrame(this.tick);
   }
 
@@ -1173,11 +1220,51 @@ class Component extends DCLogic {
     window.removeEventListener("pointermove", this.onMove);
     window.removeEventListener("scroll", this.onScroll);
     if (this.layoutGrids) window.removeEventListener("resize", this.layoutGrids);
-    if (this.onResize) window.removeEventListener("resize", this.onResize);
     if (this.io) this.io.disconnect();
   }
 }
 
 </script>
+
+<!-- Toggle bahasa ID/EN via Google Website Translator (auto-translate seluruh isi halaman). -->
+<div id="google_translate_element" style="display:none"></div>
+<script type="text/javascript">
+  window.__siteLang = "id";
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+      { pageLanguage: "id", includedLanguages: "en", autoDisplay: false },
+      "google_translate_element"
+    );
+  }
+  function readLangCookie() {
+    var m = document.cookie.match(/googtrans=\/id\/(\w+)/);
+    return m ? m[1] : "id";
+  }
+  function updateLangLabels() {
+    var lbl1 = document.getElementById("langToggleLabel");
+    var lbl2 = document.getElementById("langToggleLabelMobile");
+    var next = window.__siteLang === "en" ? "ID" : "EN";
+    var nextFull = window.__siteLang === "en" ? "Bahasa Indonesia" : "English";
+    if (lbl1) lbl1.textContent = next;
+    if (lbl2) lbl2.textContent = nextFull;
+  }
+  window.setSiteLang = function (lang) {
+    var host = location.hostname;
+    var expire = lang === "id" ? "Thu, 01 Jan 1970 00:00:00 UTC" : "";
+    var cookieVal = lang === "id" ? "" : "/id/" + lang;
+    [host, "." + host, ""].forEach(function (domain) {
+      var domainPart = domain ? "; domain=" + domain : "";
+      if (lang === "id") {
+        document.cookie = "googtrans=; path=/; expires=" + expire + domainPart;
+      } else {
+        document.cookie = "googtrans=" + cookieVal + "; path=/" + domainPart;
+      }
+    });
+    location.reload();
+  };
+  window.__siteLang = readLangCookie();
+  updateLangLabels();
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

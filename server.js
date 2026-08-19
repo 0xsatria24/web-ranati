@@ -1,24 +1,34 @@
 /* server.js — backend RANATI (PostgreSQL).
    Setup:  1) buat db-config.json dari db-config.example.json (isi password)
            2) node setup-db.js   (buat database 'ranati' bila belum ada)
-           3) node server.js     -> http://localhost:3000
+           3) node server.js     -> http://localhost:5000
    Statis  : index.html, admin.html, assets, dll.
    Auth    : POST /api/register, /api/login, /api/logout, GET /api/me
+             GET /api/verify-email?token=..., POST /api/resend-verification
+   Email   : set RESEND_API_KEY (+ EMAIL_FROM opsional) di env untuk kirim email asli;
+             tanpa itu, link verifikasi hanya dicetak ke console (mode dev).
    Konten  : GET /api/content (publik), POST /api/content (token)
    Koleksi : GET /api/collections/:name  |  POST (token)  |  PUT/DELETE /:id (token)
    Stats   : GET /api/stats (token)      Upload: POST /api/upload (token) -> /assets
 */
 "use strict";
+require("dotenv").config();
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const db = require("./db");
+const mail = require("./mail");
 
 const ROOT = __dirname;
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const ASSET_DIR = path.join(ROOT, "assets");
-const ALLOWED_COLLECTIONS = ["zones", "news"];
+const ALLOWED_COLLECTIONS = ["zones", "news", "gallery"];
+const UPLOAD_EXT = {
+  "image/jpeg": ".jpg", "image/png": ".png", "image/gif": ".gif", "image/webp": ".webp",
+  "video/mp4": ".mp4", "video/webm": ".webm", "video/ogg": ".ogv",
+};
+const UPLOAD_MAX_BYTES = 100 * 1024 * 1024; // 100MB (video)
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // token berlaku 30 hari
 
 /* Rate limit sederhana (in-memory per instance; defense-in-depth, bukan jaminan
@@ -44,6 +54,7 @@ const MIME = {
   ".gif": "image/gif", ".svg": "image/svg+xml", ".webp": "image/webp",
   ".mp4": "video/mp4", ".webm": "video/webm", ".ogg": "video/ogg",
   ".pdf": "application/pdf",
+  ".xml": "application/xml; charset=utf-8", ".txt": "text/plain; charset=utf-8",
 };
 
 /* ---------- util ---------- */
@@ -54,10 +65,22 @@ function send(res, code, body, type) {
 function json(res, code, obj) { send(res, code, JSON.stringify(obj), MIME[".json"]); }
 function readBody(req, cb) {
   let data = "";
-  req.on("data", (c) => { data += c; if (data.length > 60 * 1024 * 1024) req.destroy(); });
+  // 140MB: cukup untuk UPLOAD_MAX_BYTES (100MB) yang di-encode base64 (~1.37x lebih besar).
+  req.on("data", (c) => { data += c; if (data.length > 140 * 1024 * 1024) req.destroy(); });
   req.on("end", () => cb(data));
 }
-function readJson(req, cb) { readBody(req, (b) => { try { cb(null, JSON.parse(b)); } catch (e) { cb(e); } }); }
+function readJson(req, res, cb) {
+  readBody(req, (b) => {
+    let parsed;
+    try { parsed = JSON.parse(b); } catch (e) { return cb(e); }
+    // cb bisa async (mis. kirim email); tangkap reject-nya di sini supaya tidak jadi
+    // unhandled rejection yang mematikan seluruh proses server.
+    Promise.resolve(cb(null, parsed)).catch((e) => {
+      console.error("[server] route error:", e);
+      if (!res.headersSent) json(res, 500, { error: "Kesalahan server" });
+    });
+  });
+}
 
 /* ---------- auth helpers ---------- */
 function hashPassword(password, salt) {
@@ -70,6 +93,33 @@ function verifyPassword(password, salt, derived) {
 }
 function newToken() { return crypto.randomBytes(24).toString("hex"); }
 function newId() { return crypto.randomBytes(8).toString("hex"); }
+const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // link verifikasi berlaku 24 jam
+function originOf(req) {
+  const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim();
+  const host = req.headers.host;
+  return proto + "://" + host;
+}
+async function sendVerification(req, email) {
+  const verifyToken = newToken();
+  await db.query(
+    "UPDATE users SET verify_token=$1, verify_expires=$2 WHERE email=$3",
+    [verifyToken, Date.now() + VERIFY_TTL_MS, email]
+  );
+  const link = originOf(req) + "/api/verify-email?token=" + verifyToken;
+  await mail.sendVerificationEmail(email, link);
+}
+// Insert lalu kirim verifikasi; kalau pengiriman gagal, hapus lagi baris yang baru
+// dibuat supaya email tidak "terkunci" (409 Email sudah terdaftar) tanpa pernah
+// menerima link — pengguna bisa langsung coba daftar ulang.
+async function createUserWithVerification(req, email, salt, derived) {
+  await db.query("INSERT INTO users(email,salt,derived,created_at,verified) VALUES($1,$2,$3,$4,false)", [email, salt, derived, Date.now()]);
+  try {
+    await sendVerification(req, email);
+  } catch (e) {
+    await db.query("DELETE FROM users WHERE email=$1", [email]);
+    throw e;
+  }
+}
 
 async function userFromToken(req) {
   const auth = req.headers["authorization"] || "";
@@ -94,8 +144,8 @@ function serveStatic(req, res) {
   fs.readFile(filePath, (err, buf) => {
     if (err) return send(res, 404, "Not found");
     const ext = path.extname(filePath).toLowerCase();
-    // HTML jangan di-cache agar update langsung tampil; aset statis boleh di-cache.
-    res.setHeader("Cache-Control", ext === ".html"
+    // HTML & JS jangan di-cache agar update langsung tampil; aset media boleh di-cache lama.
+    res.setHeader("Cache-Control", (ext === ".html" || ext === ".js")
       ? "no-cache, no-store, must-revalidate"
       : "public, max-age=3600");
     send(res, 200, buf, MIME[ext] || "application/octet-stream");
@@ -108,7 +158,7 @@ async function route(req, res) {
 
   // REGISTER
   if (url === "/api/register" && req.method === "POST") {
-    return readJson(req, async (err, b) => {
+    return readJson(req, res, async (err, b) => {
       if (err) return json(res, 400, { error: "Body tidak valid" });
       let email = String(b.email || "").trim().toLowerCase();
       const password = String(b.password || "");
@@ -120,16 +170,41 @@ async function route(req, res) {
       const exists = await db.query("SELECT 1 FROM users WHERE email = $1", [email]);
       if (exists.rows.length) return json(res, 409, { error: "Email sudah terdaftar" });
       const { salt, derived } = hashPassword(password);
-      await db.query("INSERT INTO users(email,salt,derived,created_at) VALUES($1,$2,$3,$4)", [email, salt, derived, Date.now()]);
-      const token = newToken();
-      await db.query("INSERT INTO tokens(token,email,created_at) VALUES($1,$2,$3)", [token, email, Date.now()]);
-      return json(res, 200, { token, email });
+      await createUserWithVerification(req, email, salt, derived);
+      return json(res, 200, { needsVerification: true, email });
+    });
+  }
+
+  // VERIFIKASI EMAIL
+  if (url === "/api/verify-email" && req.method === "GET") {
+    const token = new URL(req.url, "http://x").searchParams.get("token") || "";
+    if (!token) return send(res, 400, "Tautan tidak valid.");
+    const { rows } = await db.query("SELECT email, verify_expires FROM users WHERE verify_token = $1", [token]);
+    const user = rows[0];
+    if (!user) return send(res, 400, "Tautan verifikasi tidak valid atau sudah dipakai.");
+    if (Date.now() > Number(user.verify_expires)) return send(res, 400, "Tautan verifikasi sudah kedaluwarsa. Minta tautan baru.");
+    await db.query("UPDATE users SET verified=true, verify_token=NULL, verify_expires=NULL WHERE email=$1", [user.email]);
+    return send(res, 200, "Email terverifikasi. Silakan masuk ke panel admin.", "text/html; charset=utf-8");
+  }
+
+  // KIRIM ULANG VERIFIKASI
+  if (url === "/api/resend-verification" && req.method === "POST") {
+    return readJson(req, res, async (err, b) => {
+      if (err) return json(res, 400, { error: "Body tidak valid" });
+      if (rateLimited("resend:" + clientIp(req), 3, 15 * 60 * 1000))
+        return json(res, 429, { error: "Terlalu banyak percobaan. Coba lagi beberapa menit." });
+      const email = String(b.email || "").trim().toLowerCase();
+      const { rows } = await db.query("SELECT email, verified FROM users WHERE email = $1", [email]);
+      const user = rows[0];
+      // Respons sama baik akun ada atau tidak, agar tidak bocorkan daftar email terdaftar.
+      if (user && !user.verified) await sendVerification(req, email);
+      return json(res, 200, { ok: true });
     });
   }
 
   // LOGIN
   if (url === "/api/login" && req.method === "POST") {
-    return readJson(req, async (err, b) => {
+    return readJson(req, res, async (err, b) => {
       if (err) return json(res, 400, { error: "Body tidak valid" });
       if (rateLimited("login:" + clientIp(req), 8, 5 * 60 * 1000))
         return json(res, 429, { error: "Terlalu banyak percobaan. Coba lagi beberapa menit." });
@@ -138,6 +213,7 @@ async function route(req, res) {
       const user = rows[0];
       if (!user || !verifyPassword(String(b.password || ""), user.salt, user.derived))
         return json(res, 401, { error: "Email atau kata sandi salah" });
+      if (!user.verified) return json(res, 403, { error: "Email belum diverifikasi. Cek kotak masuk kamu." });
       const token = newToken();
       await db.query("INSERT INTO tokens(token,email,created_at) VALUES($1,$2,$3)", [token, email, Date.now()]);
       return json(res, 200, { token, email });
@@ -148,7 +224,7 @@ async function route(req, res) {
   if (url === "/api/change-password" && req.method === "POST") {
     const u = await userFromToken(req);
     if (!u) return json(res, 401, { error: "Perlu masuk" });
-    return readJson(req, async (err, b) => {
+    return readJson(req, res, async (err, b) => {
       if (err) return json(res, 400, { error: "Body tidak valid" });
       const oldPw = String(b.oldPassword || ""), newPw = String(b.newPassword || "");
       if (newPw.length < 8) return json(res, 400, { error: "Kata sandi baru minimal 8 karakter" });
@@ -172,7 +248,7 @@ async function route(req, res) {
   }
   if (url === "/api/users" && req.method === "POST") {
     if (!(await userFromToken(req))) return json(res, 401, { error: "Perlu masuk" });
-    return readJson(req, async (err, b) => {
+    return readJson(req, res, async (err, b) => {
       if (err) return json(res, 400, { error: "Body tidak valid" });
       const email = String(b.email || "").trim().toLowerCase();
       const password = String(b.password || "");
@@ -181,7 +257,7 @@ async function route(req, res) {
       const exists = await db.query("SELECT 1 FROM users WHERE email = $1", [email]);
       if (exists.rows.length) return json(res, 409, { error: "Email sudah terdaftar" });
       const { salt, derived } = hashPassword(password);
-      await db.query("INSERT INTO users(email,salt,derived,created_at) VALUES($1,$2,$3,$4)", [email, salt, derived, Date.now()]);
+      await createUserWithVerification(req, email, salt, derived);
       return json(res, 200, { ok: true, email });
     });
   }
@@ -216,13 +292,14 @@ async function route(req, res) {
     if (!(await userFromToken(req))) return json(res, 401, { error: "Perlu masuk" });
     const z = await db.query("SELECT count(*) FROM collections WHERE name='zones'");
     const n = await db.query("SELECT count(*) FROM collections WHERE name='news'");
+    const g = await db.query("SELECT count(*) FROM collections WHERE name='gallery'");
     const cf = await db.query("SELECT count(*) FROM content");
     const us = await db.query("SELECT count(*) FROM users");
     const lu = await db.query("SELECT max(updated_at) AS u FROM collections");
     let assets = 0;
     try { assets = fs.readdirSync(ASSET_DIR).filter((f) => !f.startsWith(".")).length; } catch (e) {}
     return json(res, 200, {
-      zones: +z.rows[0].count, news: +n.rows[0].count, assets,
+      zones: +z.rows[0].count, news: +n.rows[0].count, gallery: +g.rows[0].count, assets,
       contentFields: +cf.rows[0].count, users: +us.rows[0].count,
       contentUpdated: lu.rows[0].u ? Number(lu.rows[0].u) : null,
     });
@@ -239,7 +316,7 @@ async function route(req, res) {
   // CONTENT (post, token) — ganti seluruh isi
   if (url === "/api/content" && req.method === "POST") {
     if (!(await userFromToken(req))) return json(res, 401, { error: "Perlu masuk" });
-    return readJson(req, async (err, obj) => {
+    return readJson(req, res, async (err, obj) => {
       if (err || obj === null || typeof obj !== "object") return json(res, 400, { error: "JSON tidak valid" });
       const client = await db.pool.connect();
       try {
@@ -257,13 +334,21 @@ async function route(req, res) {
 
   // UPLOAD (token). Di Vercel -> Vercel Blob (permanen). Lokal -> tulis ke /assets.
   if (url === "/api/upload" && req.method === "POST") {
-    if (!(await userFromToken(req))) return json(res, 401, { error: "Perlu masuk" });
-    return readJson(req, async (err, b) => {
+    const uploader = await userFromToken(req);
+    if (!uploader) return json(res, 401, { error: "Perlu masuk" });
+    if (rateLimited("upload:" + uploader.email, 30, 10 * 60 * 1000))
+      return json(res, 429, { error: "Terlalu banyak unggahan. Coba lagi beberapa menit." });
+    return readJson(req, res, async (err, b) => {
       if (err) return json(res, 400, { error: "JSON tidak valid" });
       const m = /^data:([^;]+);base64,(.*)$/s.exec((b && b.dataUrl) || "");
       if (!m) return json(res, 400, { error: "dataUrl tidak valid" });
+      const mime = m[1].toLowerCase();
+      const ext = UPLOAD_EXT[mime];
+      // Whitelist tipe berkas: cegah unggah SVG/HTML/script berbahaya yang bisa
+      // dieksekusi saat dibuka langsung dari /assets (stored XSS same-origin).
+      if (!ext) return json(res, 400, { error: "Tipe berkas tidak didukung. Hanya gambar (jpg/png/gif/webp) dan video (mp4/webm/ogg)." });
       const buf = Buffer.from(m[2], "base64");
-      const ext = "." + (m[1].split("/")[1] || "bin").replace(/[^a-z0-9]/gi, "");
+      if (buf.length > UPLOAD_MAX_BYTES) return json(res, 400, { error: "Berkas terlalu besar (maks 100MB)." });
       const safe = String(b.name || "asset").replace(/[^a-z0-9._-]/gi, "_").replace(/\.[^.]*$/, "");
       const fname = safe + "-" + Date.now() + ext;
       // Vercel Blob bila token tersedia (di Vercel).
@@ -285,7 +370,7 @@ async function route(req, res) {
 
   // MESSAGES — kirim pesan (publik), list & hapus (token)
   if (url === "/api/messages" && req.method === "POST") {
-    return readJson(req, async (err, b) => {
+    return readJson(req, res, async (err, b) => {
       if (err || !b || typeof b !== "object") return json(res, 400, { error: "Data tidak valid" });
       if (b.website) return json(res, 200, { ok: true }); // honeypot: bot isi field tersembunyi -> abaikan diam-diam
       if (rateLimited("msg:" + clientIp(req), 5, 10 * 60 * 1000))
@@ -392,7 +477,7 @@ async function route(req, res) {
     // CREATE (token)
     if (!id && req.method === "POST") {
       if (!(await userFromToken(req))) return json(res, 401, { error: "Perlu masuk" });
-      return readJson(req, async (err, item) => {
+      return readJson(req, res, async (err, item) => {
         if (err || !item || typeof item !== "object") return json(res, 400, { error: "JSON tidak valid" });
         delete item.id; delete item.createdAt; delete item.updatedAt;
         const nid = newId(), now = Date.now();
@@ -403,7 +488,7 @@ async function route(req, res) {
     // UPDATE (token)
     if (id && (req.method === "PUT" || req.method === "PATCH")) {
       if (!(await userFromToken(req))) return json(res, 401, { error: "Perlu masuk" });
-      return readJson(req, async (err, patch) => {
+      return readJson(req, res, async (err, patch) => {
         if (err || !patch || typeof patch !== "object") return json(res, 400, { error: "JSON tidak valid" });
         delete patch.id; delete patch.createdAt; delete patch.updatedAt;
         const cur = await db.query("SELECT data, created_at FROM collections WHERE id=$1 AND name=$2", [id, name]);

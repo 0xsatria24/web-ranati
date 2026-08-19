@@ -51,11 +51,20 @@ async function query(text, params) {
 async function init() {
   await query(`
     CREATE TABLE IF NOT EXISTS users (
-      email       TEXT PRIMARY KEY,
-      salt        TEXT NOT NULL,
-      derived     TEXT NOT NULL,
-      created_at  BIGINT NOT NULL
+      email           TEXT PRIMARY KEY,
+      salt            TEXT NOT NULL,
+      derived         TEXT NOT NULL,
+      created_at      BIGINT NOT NULL,
+      verified        BOOLEAN NOT NULL DEFAULT false,
+      verify_token    TEXT,
+      verify_expires  BIGINT
     );
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS verified BOOLEAN NOT NULL DEFAULT false;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS verify_token TEXT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS verify_expires BIGINT;
+    -- Akun yang sudah ada SEBELUM fitur verifikasi email ditambahkan (verify_token belum
+    -- pernah diisi) dianggap sudah terverifikasi, supaya tidak terkunci dari akunnya sendiri.
+    UPDATE users SET verified = true WHERE verified = false AND verify_token IS NULL;
     CREATE TABLE IF NOT EXISTS tokens (
       token       TEXT PRIMARY KEY,
       email       TEXT NOT NULL REFERENCES users(email) ON DELETE CASCADE,
