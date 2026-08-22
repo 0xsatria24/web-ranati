@@ -24,8 +24,11 @@ function loadConfig() {
 function poolConfig() {
   const cfg = loadConfig();
   // Postgres cloud (Neon/Supabase/dll) hampir selalu wajib SSL.
+  // rejectUnauthorized:false menerima sertifikat apa pun -> koneksi bisa disadap (MITM).
+  // Default sekarang ketat; set DB_SSL_INSECURE=1 hanya bila penyedia memakai CA privat
+  // dan sertifikatnya belum dipasang.
   if (cfg.connectionString && !/sslmode=/.test(cfg.connectionString)) {
-    cfg.ssl = { rejectUnauthorized: false };
+    cfg.ssl = { rejectUnauthorized: process.env.DB_SSL_INSECURE !== "1" };
   }
   return cfg;
 }
@@ -92,12 +95,23 @@ async function init() {
       seen        BOOLEAN NOT NULL DEFAULT false
     );
     CREATE INDEX IF NOT EXISTS messages_created_idx ON messages(created_at);
-    CREATE TABLE IF NOT EXISTS visits (
-      id          TEXT PRIMARY KEY,
-      ts          BIGINT NOT NULL,
-      day         TEXT NOT NULL
+    -- Kunjungan disimpan sebagai hitungan per hari. Tabel 'visits' lama (satu baris per
+    -- kunjungan) tumbuh tanpa batas; datanya dipindahkan lalu tabelnya dibuang.
+    -- Migrasi harus idempotent: init() jalan sekali per instance serverless, bisa paralel.
+    CREATE TABLE IF NOT EXISTS visit_days (
+      day  TEXT PRIMARY KEY,
+      n    INTEGER NOT NULL DEFAULT 0
     );
-    CREATE INDEX IF NOT EXISTS visits_day_idx ON visits(day);
+    DO $mig$
+    BEGIN
+      IF to_regclass('public.visits') IS NOT NULL THEN
+        INSERT INTO visit_days(day, n)
+          SELECT day, count(*)::int FROM visits GROUP BY day
+          ON CONFLICT (day) DO NOTHING;
+        DROP TABLE visits;
+      END IF;
+    END
+    $mig$;
   `);
 }
 
