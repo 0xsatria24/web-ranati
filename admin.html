@@ -507,7 +507,11 @@ function api(path, opts){
   opts.credentials = "same-origin";
   return fetch(path, opts).then(function(r){
     return r.json().catch(function(){return {};}).then(function(b){
-      if (!r.ok) throw new Error(b.error || ("Error " + r.status));
+      if (!r.ok) {
+        var e = new Error(b.error || ("Error " + r.status));
+        e.needsSetupToken = !!b.needsSetupToken;
+        throw e;
+      }
       return b;
     });
   });
@@ -532,12 +536,21 @@ el("authSubmit").onclick = function(){
   if (!email || !password) return showMsg("Email dan kata sandi wajib diisi.");
   if (mode === "register" && password !== el("confirm").value) return showMsg("Konfirmasi kata sandi tidak cocok.");
   el("authSubmit").disabled = true;
-  api(mode === "register" ? "/api/register" : "/api/login", { method:"POST", body: JSON.stringify({ email:email, password:password }) })
+  var payload = { email:email, password:password };
+  // Server dengan env SETUP_TOKEN meminta token setup untuk pendaftaran admin pertama.
+  if (mode === "register" && el("authSubmit")._setupToken) payload.setupToken = el("authSubmit")._setupToken;
+  api(mode === "register" ? "/api/register" : "/api/login", { method:"POST", body: JSON.stringify(payload) })
     .then(function(res){
       if (res.needsVerification) { showMsg("Akun dibuat. Cek email " + res.email + " untuk verifikasi sebelum masuk.", true); setMode("login"); return; }
       enterApp(res.email); // sesi sudah dipasang server sebagai cookie HttpOnly
     })
-    .catch(function(err){ showMsg(err.message); })
+    .catch(function(err){
+      if (err && err.needsSetupToken) {
+        var t = prompt("Server meminta token setup (env SETUP_TOKEN) untuk pendaftaran pertama:");
+        if (t) { el("authSubmit")._setupToken = t.trim(); el("authSubmit").disabled = false; return el("authSubmit").click(); }
+      }
+      showMsg(err.message);
+    })
     .then(function(){ el("authSubmit").disabled = false; });
 };
 ["email","password","confirm"].forEach(function(id){ el(id).addEventListener("keydown", function(e){ if(e.key==="Enter") el("authSubmit").click(); }); });
@@ -814,6 +827,13 @@ function prepareUpload(file){
       img.onerror = function(){ resolve(dataUrl); }; // gagal decode -> pakai file asli
       img.src = dataUrl;
     });
+  }).then(function(dataUrl){
+    // Cek ukuran HASIL AKHIR (termasuk gambar yang gagal/tidak dikompres) sebelum POST:
+    // server menolak >100MB, tapi respons 413 di tengah body sering tampil sebagai
+    // network error tanpa pesan — lebih jelas ditolak di sini.
+    var approxBytes = dataUrl.length * 3 / 4;
+    if (approxBytes > UPLOAD_MAX_BYTES) throw new Error("Berkas terlalu besar (maks 100MB).");
+    return dataUrl;
   });
 }
 function bindForm(){

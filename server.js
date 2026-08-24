@@ -29,6 +29,22 @@ const UPLOAD_EXT = {
   "video/mp4": ".mp4", "video/webm": ".webm", "video/ogg": ".ogv",
 };
 const UPLOAD_MAX_BYTES = 100 * 1024 * 1024; // 100MB (video)
+/* Cek magic bytes: MIME pada data-URL hanyalah klaim klien; pastikan isi berkas
+   benar-benar format yang diklaim sebelum disajikan dari origin kita. */
+function sniffOk(mime, buf) {
+  if (buf.length < 12) return false;
+  const ascii = (a, b) => buf.slice(a, b).toString("latin1");
+  switch (mime) {
+    case "image/jpeg": return buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF;
+    case "image/png":  return ascii(1, 4) === "PNG" && buf[0] === 0x89;
+    case "image/gif":  return ascii(0, 3) === "GIF";
+    case "image/webp": return ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP";
+    case "video/mp4":  return ascii(4, 8) === "ftyp";
+    case "video/webm": return buf[0] === 0x1A && buf[1] === 0x45 && buf[2] === 0xDF && buf[3] === 0xA3;
+    case "video/ogg":  return ascii(0, 4) === "OggS";
+    default: return false;
+  }
+}
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // token berlaku 30 hari
 
 /* Rate limit sederhana (in-memory per instance; defense-in-depth, bukan jaminan
@@ -42,12 +58,10 @@ function rateLimited(key, max, windowMs) {
   if (rlHits.size > 5000) rlHits.clear();
   return arr.length > max;
 }
-/* IP klien. JANGAN pakai entri paling kiri dari x-forwarded-for: itu dikirim klien
-   dan bisa dipalsukan untuk melewati rate limit. Entri paling KANAN adalah yang
-   ditambahkan proxy tepercaya (Vercel), jadi itu yang dipakai. */
+/* IP klien. JANGAN pakai x-real-ip atau entri paling kiri dari x-forwarded-for:
+   keduanya dikirim klien dan bisa dipalsukan untuk melewati rate limit. Entri
+   paling KANAN dari XFF adalah yang ditambahkan proxy tepercaya (Vercel). */
 function clientIp(req) {
-  const real = String(req.headers["x-real-ip"] || "").trim();
-  if (real) return real;
   const xff = String(req.headers["x-forwarded-for"] || "").split(",").map((s) => s.trim()).filter(Boolean);
   if (xff.length) return xff[xff.length - 1];
   return (req.socket && req.socket.remoteAddress) || "?";
@@ -67,12 +81,31 @@ const MIME = {
 function isHttps(req) {
   return String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim() === "https";
 }
-/* Header keamanan dasar untuk SEMUA respons. Catatan: CSP sengaja tidak dipasang —
-   index.html & admin.html penuh inline script, CSP yang benar butuh refactor besar. */
+/* Header keamanan dasar untuk SEMUA respons. CSP masih memakai 'unsafe-inline'
+   (index.html & admin.html penuh inline script), tapi tetap memblokir script dari
+   origin asing — kaki eksfiltrasi XSS (connect-src) juga dibatasi. Origin eksternal
+   yang diizinkan: unpkg (React), Google Fonts, dan widget Google Translate. */
+const CSP = [
+  "default-src 'self'",
+  // 'unsafe-eval' dibutuhkan support.js: kompilasi JSX via Babel standalone + new Function.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https:",
+  "media-src 'self' data: blob: https:",
+  "connect-src 'self' https://translate.googleapis.com https://translate-pa.googleapis.com",
+  // 'self': index.html menyematkan masterplan-3d.html lewat iframe.
+  "frame-src 'self' https://translate.googleapis.com https://translate.google.com https://www.google.com",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "frame-ancestors 'self'",
+  "form-action 'self'",
+].join("; ");
 function securityHeaders(req, res) {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Content-Security-Policy", CSP);
   if (isHttps(req)) res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 }
 function send(res, code, body, type) {
@@ -80,23 +113,28 @@ function send(res, code, body, type) {
   res.end(body);
 }
 function json(res, code, obj) { send(res, code, JSON.stringify(obj), MIME[".json"]); }
-function readBody(req, res, cb) {
+/* Batas ukuran body PER ROUTE, bukan satu batas global 140MB: endpoint publik
+   seperti /api/messages tidak boleh bisa dipakai memenuhi memori server. */
+const BODY_LIMIT_DEFAULT = 1 * 1024 * 1024;              // 1MB — cukup untuk semua JSON biasa
+const BODY_LIMIT_CONTENT = 5 * 1024 * 1024;              // 5MB — konten situs bisa besar
+const BODY_LIMIT_UPLOAD = 140 * 1024 * 1024;             // 100MB file + overhead base64 (~1.37x)
+function readBody(req, res, cb, limit) {
+  limit = limit || BODY_LIMIT_DEFAULT;
   let data = "", aborted = false;
-  // 140MB: cukup untuk UPLOAD_MAX_BYTES (100MB) yang di-encode base64 (~1.37x lebih besar).
   req.on("data", (c) => {
     if (aborted) return;
     data += c;
-    if (data.length > 140 * 1024 * 1024) {
+    if (data.length > limit) {
       // Kirim respons DULU, baru putuskan koneksi — setelah destroy() tidak bisa menulis lagi,
       // dan klien akan menggantung tanpa pesan error.
       aborted = true;
-      if (!res.headersSent) json(res, 413, { error: "Berkas terlalu besar (maks 100MB)." });
+      if (!res.headersSent) json(res, 413, { error: "Data terlalu besar." });
       req.destroy();
     }
   });
   req.on("end", () => { if (!aborted) cb(data); });
 }
-function readJson(req, res, cb) {
+function readJson(req, res, cb, limit) {
   readBody(req, res, (b) => {
     let parsed;
     try { parsed = JSON.parse(b); } catch (e) { return cb(e); }
@@ -106,7 +144,7 @@ function readJson(req, res, cb) {
       console.error("[server] route error:", e);
       if (!res.headersSent) json(res, 500, { error: "Kesalahan server" });
     });
-  });
+  }, limit);
 }
 
 /* ---------- auth helpers ---------- */
@@ -123,6 +161,13 @@ function verifyPassword(password, salt, derived) {
 }
 function newToken() { return crypto.randomBytes(24).toString("hex"); }
 function newId() { return crypto.randomBytes(8).toString("hex"); }
+/* Hash sesi sebelum disimpan: bocornya isi tabel tokens (backup, log, konsol DB)
+   tidak lagi memberi sesi admin siap pakai — cookie-lah satu-satunya pemegang nilai asli. */
+function hashToken(t) { return crypto.createHash("sha256").update(String(t)).digest("hex"); }
+/* Kredensial palsu untuk menyamakan waktu respons login saat email tidak terdaftar:
+   tanpa ini, "email tidak ada" terjawab instan sedangkan "password salah" butuh ~100ms
+   scrypt — beda waktu itu membocorkan daftar email terdaftar. */
+const DUMMY_CRED = hashPassword("dummy-password-timing-equalizer");
 const VERIFY_TTL_MS = 24 * 60 * 60 * 1000; // link verifikasi berlaku 24 jam
 function originOf(req) {
   const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim();
@@ -161,7 +206,8 @@ function parseCookies(req) {
   String(req.headers.cookie || "").split(";").forEach((part) => {
     const i = part.indexOf("=");
     if (i < 0) return;
-    out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+    // decodeURIComponent melempar pada cookie rusak (%zz) -> jangan sampai 500 semua route.
+    try { out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim()); } catch (e) {}
   });
   return out;
 }
@@ -182,14 +228,22 @@ async function userFromToken(req) {
   // Cookie lebih diutamakan; header Bearer tetap didukung agar sesi lama tidak putus.
   const token = parseCookies(req)[COOKIE_NAME] || auth.replace(/^Bearer\s+/i, "").trim();
   if (!token) return null;
-  const { rows } = await db.query("SELECT email, created_at FROM tokens WHERE token = $1", [token]);
-  if (!rows.length) return null;
+  // Di DB token disimpan sebagai sha256; cari hash dulu. Bila tidak ketemu, coba nilai
+  // mentah (sesi lama dari sebelum hashing) dan upgrade barisnya ke hash.
+  const hashed = hashToken(token);
+  let { rows } = await db.query("SELECT email, created_at FROM tokens WHERE token = $1", [hashed]);
+  if (!rows.length) {
+    ({ rows } = await db.query(
+      "UPDATE tokens SET token=$1 WHERE token=$2 RETURNING email, created_at", [hashed, token]));
+    if (!rows.length) return null;
+  }
   // Token kedaluwarsa -> hapus & tolak.
   if (Date.now() - Number(rows[0].created_at) > TOKEN_TTL_MS) {
-    await db.query("DELETE FROM tokens WHERE token = $1", [token]);
+    await db.query("DELETE FROM tokens WHERE token = $1", [hashed]);
     return null;
   }
-  return { email: rows[0].email, token };
+  // token = kunci baris di DB (hash) — dipakai logout & change-password.
+  return { email: rows[0].email, token: hashed };
 }
 
 /* ---------- static ----------
@@ -247,6 +301,10 @@ async function route(req, res) {
       // Registrasi hanya untuk admin PERTAMA. Setelah ada akun, registrasi ditutup.
       const total = await db.query("SELECT count(*)::int AS n FROM users");
       if (total.rows[0].n > 0) return json(res, 403, { error: "Registrasi ditutup. Akun admin sudah ada." });
+      // Bila env SETUP_TOKEN diset, pendaftaran pertama pun butuh token itu — menutup
+      // celah "siapa cepat dia jadi admin" antara deploy dan pendaftaran pertama.
+      if (process.env.SETUP_TOKEN && String(b.setupToken || "") !== process.env.SETUP_TOKEN)
+        return json(res, 403, { error: "Token setup salah atau belum diisi.", needsSetupToken: true });
       const exists = await db.query("SELECT 1 FROM users WHERE email = $1", [email]);
       if (exists.rows.length) return json(res, 409, { error: "Email sudah terdaftar" });
       const { salt, derived } = hashPassword(password);
@@ -258,6 +316,8 @@ async function route(req, res) {
   // VERIFIKASI EMAIL — GET hanya menampilkan halaman konfirmasi, TIDAK mengubah apa pun.
   // Banyak klien email & pemindai antivirus melakukan prefetch tautan; kalau GET yang
   // mengonsumsi token, tautan sudah "terpakai" sebelum pengguna sempat mengklik.
+  // Token TIDAK disisipkan ke HTML (dulu lewat JSON.stringify — bisa reflected XSS
+  // karena "</script>" tidak di-escape); skrip membacanya sendiri dari location.search.
   if (url === "/api/verify-email" && req.method === "GET") {
     const token = new URL(req.url, "http://x").searchParams.get("token") || "";
     if (!token) return send(res, 400, "Tautan tidak valid.");
@@ -269,9 +329,10 @@ async function route(req, res) {
       '<p style="color:#666">Klik tombol di bawah untuk menyelesaikan verifikasi akun admin RANATI.</p>' +
       '<button id="go" style="padding:12px 22px;border:0;border-radius:8px;background:#111;color:#fff;font-size:15px;cursor:pointer">Verifikasi sekarang</button>' +
       '<p id="msg" style="margin-top:18px"></p><script>' +
+      'var token=new URLSearchParams(location.search).get("token")||"";' +
       'document.getElementById("go").onclick=function(){this.disabled=true;' +
       'fetch("/api/verify-email",{method:"POST",headers:{"Content-Type":"application/json"},' +
-      'body:JSON.stringify({token:' + JSON.stringify(token) + '})})' +
+      'body:JSON.stringify({token:token})})' +
       '.then(function(r){return r.json().catch(function(){return{};}).then(function(b){' +
       'document.getElementById("msg").textContent=b.error||"Email terverifikasi. Silakan masuk ke panel admin.";});});' +
       '<\/script></body>';
@@ -311,16 +372,24 @@ async function route(req, res) {
   if (url === "/api/login" && req.method === "POST") {
     return readJson(req, res, async (err, b) => {
       if (err) return json(res, 400, { error: "Body tidak valid" });
-      if (rateLimited("login:" + clientIp(req), 8, 5 * 60 * 1000))
-        return json(res, 429, { error: "Terlalu banyak percobaan. Coba lagi beberapa menit." });
       const email = String(b.email || "").trim().toLowerCase();
+      // Limit per-IP DAN per-akun: spray terdistribusi ke satu email tetap terbendung.
+      if (rateLimited("login:" + clientIp(req), 8, 5 * 60 * 1000) ||
+          rateLimited("login-email:" + email, 10, 5 * 60 * 1000))
+        return json(res, 429, { error: "Terlalu banyak percobaan. Coba lagi beberapa menit." });
       const { rows } = await db.query("SELECT * FROM users WHERE email = $1", [email]);
       const user = rows[0];
-      if (!user || !verifyPassword(String(b.password || ""), user.salt, user.derived))
-        return json(res, 401, { error: "Email atau kata sandi salah" });
+      // Email tak terdaftar -> tetap jalankan scrypt (kredensial dummy) supaya durasi
+      // respons sama dengan kasus "password salah" (anti enumerasi via timing).
+      const ok = user
+        ? verifyPassword(String(b.password || ""), user.salt, user.derived)
+        : (verifyPassword(String(b.password || ""), DUMMY_CRED.salt, DUMMY_CRED.derived), false);
+      if (!ok) return json(res, 401, { error: "Email atau kata sandi salah" });
       if (!user.verified) return json(res, 403, { error: "Email belum diverifikasi. Cek kotak masuk kamu." });
       const token = newToken();
-      await db.query("INSERT INTO tokens(token,email,created_at) VALUES($1,$2,$3)", [token, email, Date.now()]);
+      await db.query("INSERT INTO tokens(token,email,created_at) VALUES($1,$2,$3)", [hashToken(token), email, Date.now()]);
+      // Bersihkan token kedaluwarsa sekalian (murah, dan tabel tidak tumbuh selamanya).
+      await db.query("DELETE FROM tokens WHERE created_at < $1", [Date.now() - TOKEN_TTL_MS]);
       setSessionCookie(req, res, token);
       // Token TIDAK lagi dikirim di body: klien memakai cookie HttpOnly.
       return json(res, 200, { email });
@@ -426,18 +495,29 @@ async function route(req, res) {
     if (!(await userFromToken(req))) return json(res, 401, { error: "Perlu masuk" });
     return readJson(req, res, async (err, obj) => {
       if (err || obj === null || typeof obj !== "object") return json(res, 400, { error: "JSON tidak valid" });
+      // Batasi jumlah & ukuran field supaya sesi yang dibajak tidak bisa memenuhi kuota DB.
+      const keys = Object.keys(obj);
+      if (keys.length > 1000) return json(res, 400, { error: "Terlalu banyak field konten." });
+      for (const k of keys) {
+        if (k.length > 200 || String(obj[k]).length > 500 * 1024)
+          return json(res, 400, { error: "Field konten terlalu besar: " + k.slice(0, 80) });
+      }
       const client = await db.pool.connect();
       try {
         await client.query("BEGIN");
         await client.query("DELETE FROM content");
-        for (const k of Object.keys(obj)) {
+        for (const k of keys) {
           await client.query("INSERT INTO content(key,value) VALUES($1,$2)", [k, String(obj[k])]);
         }
         await client.query("COMMIT");
         json(res, 200, { ok: true });
-      } catch (e) { await client.query("ROLLBACK"); json(res, 500, { error: String(e.message || e) }); }
+      } catch (e) {
+        await client.query("ROLLBACK");
+        console.error("[server] content error:", e);
+        json(res, 500, { error: "Gagal menyimpan konten." }); // jangan bocorkan detail skema DB
+      }
       finally { client.release(); }
-    });
+    }, BODY_LIMIT_CONTENT);
   }
 
   // UPLOAD (token). Di Vercel -> Vercel Blob (permanen). Lokal -> tulis ke /assets.
@@ -457,6 +537,7 @@ async function route(req, res) {
       if (!ext) return json(res, 400, { error: "Tipe berkas tidak didukung. Hanya gambar (jpg/png/gif/webp) dan video (mp4/webm/ogg)." });
       const buf = Buffer.from(m[2], "base64");
       if (buf.length > UPLOAD_MAX_BYTES) return json(res, 400, { error: "Berkas terlalu besar (maks 100MB)." });
+      if (!sniffOk(mime, buf)) return json(res, 400, { error: "Isi berkas tidak cocok dengan tipenya." });
       const safe = String(b.name || "asset").replace(/[^a-z0-9._-]/gi, "_").replace(/\.[^.]*$/, "");
       const fname = safe + "-" + Date.now() + ext;
       // Vercel Blob bila token tersedia (di Vercel).
@@ -473,7 +554,7 @@ async function route(req, res) {
       if (!fs.existsSync(ASSET_DIR)) fs.mkdirSync(ASSET_DIR, { recursive: true });
       fs.writeFile(path.join(ASSET_DIR, fname), buf, (e) =>
         e ? json(res, 500, { error: String(e) }) : json(res, 200, { url: "assets/" + fname }));
-    });
+    }, BODY_LIMIT_UPLOAD);
   }
 
   // MESSAGES — kirim pesan (publik), list & hapus (token)
