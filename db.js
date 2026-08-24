@@ -108,8 +108,12 @@ async function init() {
         INSERT INTO visit_days(day, n)
           SELECT day, count(*)::int FROM visits GROUP BY day
           ON CONFLICT (day) DO NOTHING;
-        DROP TABLE visits;
+        DROP TABLE IF EXISTS visits;
       END IF;
+    EXCEPTION WHEN undefined_table THEN
+      -- Dua instance serverless bisa menjalankan migrasi ini bersamaan; yang kalah
+      -- balapan mendapati 'visits' sudah dihapus — bukan error, abaikan saja.
+      NULL;
     END
     $mig$;
   `);
