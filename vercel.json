@@ -1,7 +1,10 @@
 {
   "functions": {
-    "server.js": {
-      "includeFiles": "{*.html,*.css,*.js,assets/**,uploads/**}"
+    "api/index.js": {
+      "includeFiles": "{*.html,*.css,*.js,*.txt,*.xml,assets/**,uploads/**}"
     }
-  }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "/api" }
+  ]
 }

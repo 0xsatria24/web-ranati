@@ -225,3 +225,34 @@ User confirmed the site is **not yet deployed to Vercel** — corroborated by `Y
 - `server.js` (verify-email inline script closure; removed raw-token match in `userFromToken`)
 - `conversation-log.md` (this entry)
 - Not committed: `setup-db.js` (pre-existing stray blank line, unrelated)
+
+## 25. Fixed P1 #3 and #6 — deploy blockers
+
+User confirmed the site is not deployed yet (§24) and asked for the two first-deploy landmines to be fixed ahead of time.
+
+**25.1 — `setup-db.js` connected to the wrong server under `DATABASE_URL`.**
+`loadConfig()` returns either `{ connectionString }` *or* the discrete `{ host, port, user, password, database }` set — never both. The script assumed the discrete shape: it copied `cfg`, overrode `database`, then `delete admin.connectionString`. In `DATABASE_URL` mode that left an **empty object**, so `new Client({})` fell back to `PG*` env vars / localhost defaults. On a machine with trust auth or `PGPASSWORD` set, it would happily create `ranati` on the local box while printing "berhasil dibuat" — the operator would believe the cloud DB was provisioned.
+
+Fix: branch on the config shape. For `connectionString`, parse it with `new URL()`, take the target DB name from the pathname, and build a *separate* admin URL pointing at `/postgres` on the same host; mirror `db.js`'s SSL default (`rejectUnauthorized` unless `DB_SSL_INSECURE=1`) since cloud providers require it. Also added `require("dotenv").config()` — `server.js` loads `.env` but this script did not, so a `DATABASE_URL` placed in `.env` was invisible here and the two disagreed about which database they were even talking about. Finally, the script now prints the host it actually reached before doing anything, so a wrong target is visible rather than silent.
+
+Verified: with `DATABASE_URL` pointing at a bogus host the new version fails with `ENOTFOUND db-tidak-ada.example` (it is genuinely dialing the URL's host); the pre-fix version under the same env failed with a SASL error against **localhost**, confirming the config had collapsed to empty. The local `db-config.json` path still works and correctly reports `ranati` already exists. Note for managed providers: Neon/Supabase provision the database for you and may forbid `CREATE DATABASE`, in which case the "sudah ada" branch exits cleanly — that is expected.
+
+**25.2 — Vercel would not have run the backend at all.**
+`vercel.json` declared a `functions` entry for root-level `server.js` and nothing else — no `api/` directory (`git log --all -- api/` confirms it never existed, despite the `server.js:719` comment referencing `api/index.js`) and no routing. Vercel's zero-config only treats files under `api/` as serverless functions, so every `/api/*` request would 404 and the root `.js` sources would be candidates for static serving — bypassing the whole `PUBLIC_FILES` allowlist added in commit `2bfc23a`.
+
+Fix, three parts:
+- **`api/index.js`** (new, one line): `module.exports = require("../server.js")`. `server.js` already ends with `module.exports = handler`, which is exactly the Node function signature Vercel expects, so no adapter logic is needed.
+- **`vercel.json`**: replaced the root-`server.js` entry with `functions: { "api/index.js": { includeFiles: ... } }` and added legacy `routes: [{ "src": "/(.*)", "dest": "/api" }]`. `routes` was chosen over `rewrites` deliberately — `rewrites` are evaluated *after* the filesystem check, so static files would win and `/server.js` could still be served as source; `routes` without an explicit `{"handle":"filesystem"}` entry matches *before* the filesystem, sending every request through the function and making the `serveStatic` allowlist authoritative. Trade-off: static assets are served by the function instead of the CDN (more invocations, no edge caching), accepted here because it keeps the security model the codebase already assumes. `includeFiles` also gained `*.txt,*.xml` — `robots.txt` and `sitemap.xml` are in `PUBLIC_FILES` but were not being bundled, so they would have 404'd.
+- **`.vercelignore`** (new): keeps `.env*`, `db-config.json`, `users.json`, `setup-db.js`, `conversation-log.md`, `*.dc.html`, mockups and `.thumbnail` out of the upload entirely — defence in depth, so the routing assumption above is not the only thing standing between a secret and the public.
+
+Verified by simulating the deployed topology locally: a bare `http.createServer(require("./api/index.js"))` with no platform static serving, i.e. exactly what `routes` produces. `/`, `/index.html`, `/admin.html`, `/style.css`, `/robots.txt`, `/sitemap.xml`, `/assets/*` → 200; `/api/me` → 401 (function alive); `/api/content`, `/api/collections/zones` → 200; `/server.js`, `/db.js`, `/.env`, `/db-config.json`, `/users.json`, `/conversation-log.md`, `/Ranati Belitung.dc.html` → 404.
+
+**Still unverified:** whether Vercel's `routes` really pre-empts the filesystem on their current platform version. That cannot be settled without an actual deployment. First smoke test after deploying: `<domain>/api/me` must return 401 (not 404) and `<domain>/server.js` must return 404 (not source).
+
+## Files touched this session (part 2)
+
+- `setup-db.js` (DATABASE_URL branch, dotenv, connection-target logging)
+- `vercel.json` (rewritten: function moved to `api/index.js`, added routes, widened includeFiles)
+- `api/index.js` (new)
+- `.vercelignore` (new)
+- `conversation-log.md` (this entry)

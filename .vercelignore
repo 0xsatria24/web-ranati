@@ -1,0 +1,14 @@
+# Berkas yang tidak dibutuhkan saat runtime — jangan ikut diunggah ke Vercel.
+# Lapis pertahanan kedua: allowlist PUBLIC_FILES di server.js sudah menolak
+# menyajikannya, ini memastikan berkasnya bahkan tidak ada di server.
+.env
+.env.*
+db-config.json
+db-config.example.json
+users.json
+setup-db.js
+conversation-log.md
+animation-notes.md
+*.dc.html
+.thumbnail
+RANATI-HOME-mockup-*.jpg
