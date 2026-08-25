@@ -228,15 +228,16 @@ async function userFromToken(req) {
   // Cookie lebih diutamakan; header Bearer tetap didukung agar sesi lama tidak putus.
   const token = parseCookies(req)[COOKIE_NAME] || auth.replace(/^Bearer\s+/i, "").trim();
   if (!token) return null;
-  // Di DB token disimpan sebagai sha256; cari hash dulu. Bila tidak ketemu, coba nilai
-  // mentah (sesi lama dari sebelum hashing) dan upgrade barisnya ke hash.
+  // Di DB token disimpan HANYA sebagai sha256, dan pencocokan HANYA lewat hash itu.
+  // Jangan pernah menambahkan lagi jalur "upgrade sesi lama" yang mencocokkan nilai
+  // mentah (UPDATE ... WHERE token=<cookie apa adanya>): karena yang tersimpan adalah
+  // hash H, penyerang yang membaca tabel tokens cukup mengirim H sebagai cookie —
+  // sha256(H) meleset, lalu baris token=H cocok — sehingga hashing jadi sia-sia persis
+  // pada ancaman yang hendak ditutupnya. Sesi terbitan sebelum hashing tidak berlaku;
+  // pemiliknya cukup login ulang.
   const hashed = hashToken(token);
-  let { rows } = await db.query("SELECT email, created_at FROM tokens WHERE token = $1", [hashed]);
-  if (!rows.length) {
-    ({ rows } = await db.query(
-      "UPDATE tokens SET token=$1 WHERE token=$2 RETURNING email, created_at", [hashed, token]));
-    if (!rows.length) return null;
-  }
+  const { rows } = await db.query("SELECT email, created_at FROM tokens WHERE token = $1", [hashed]);
+  if (!rows.length) return null;
   // Token kedaluwarsa -> hapus & tolak.
   if (Date.now() - Number(rows[0].created_at) > TOKEN_TTL_MS) {
     await db.query("DELETE FROM tokens WHERE token = $1", [hashed]);
@@ -334,7 +335,7 @@ async function route(req, res) {
       'fetch("/api/verify-email",{method:"POST",headers:{"Content-Type":"application/json"},' +
       'body:JSON.stringify({token:token})})' +
       '.then(function(r){return r.json().catch(function(){return{};}).then(function(b){' +
-      'document.getElementById("msg").textContent=b.error||"Email terverifikasi. Silakan masuk ke panel admin.";});});' +
+      'document.getElementById("msg").textContent=b.error||"Email terverifikasi. Silakan masuk ke panel admin.";});});};' +
       '<\/script></body>';
     return send(res, 200, page, "text/html; charset=utf-8");
   }
