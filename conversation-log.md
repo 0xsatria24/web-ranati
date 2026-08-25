@@ -189,3 +189,39 @@ User picked search/filter as the next fix from §20's list.
 - Added `searchState` (module-level map of collection name → current query) and `matchesSearch(item, cfg, q)`, which checks the item's `titleField` plus every non-media/non-gallery field value (case-insensitive substring match). `renderList(cfg)` now filters `colState[cfg.name]` through this before rendering — filtering is purely client-side over data already fetched, no new API calls per keystroke. Because `renderList` already gets called by every existing mutation path (`createItem`/`persistItem`/`deleteItem`/`fetchCollection`), the search filter automatically stays in sync without touching those call sites.
 - `loadMessages()` was split into a fetch step (populates a new `messagesState` array) and a `renderMessages()` step that applies the same kind of filter (matches name/email/phone/body) — needed a separate path since messages aren't part of the generic `COLLECTIONS`/`colState` system.
 - Empty states are now distinguished: "belum ada X sama sekali" vs. "tidak ada yang cocok dengan pencarian" when a filter yields zero results but the underlying list isn't actually empty.
+
+---
+
+# Session 2026-08-25 — Full-project bug sweep, two P0 fixes
+
+## 22. Full-project bug sweep (16 findings)
+
+User asked to "find the bugs in this project" and chose a **whole-codebase sweep** over the pending-diff review — the working tree only held a stray blank line in `setup-db.js`, so `/code-review` alone would have come back empty. Both ran: the sweep by hand over `server.js`, `db.js`, `setup-db.js`, `mail.js`, `contact.js`, `site-content.js`, `admin.html`, `vercel.json`; `/code-review` in parallel, which widened its own scope to the last commit and contributed finding §23.2 plus three minor items.
+
+16 findings, ranked. Two P0 (fixed, see §23). P1: `setup-db.js` connecting to the wrong server under `DATABASE_URL`; `readBody` multibyte corruption; spoofable `X-Forwarded-For`; `vercel.json` likely not deploying the backend at all. P2 (10 items): plaintext `verify_token`, auto-verify race in `init()`, `GET /%` returning 500, `"[object Object]"` content values, unservable upload filenames, SSL only applied to `connectionString`, `/api/stats` asset count meaningless on Vercel, per-email limiter enabling admin lockout, attacker-triggerable global `rlHits.clear()`, possibly-missing `style-src` origin for Google Translate.
+
+Full report kept out of the repo (scratchpad only) — the durable record is this log plus the commit.
+
+## 23. Fixed: two P0 bugs (`server.js`, commit `992944d`)
+
+Branch `fix/p0-verifikasi-email-dan-token-sesi`, pushed to origin. Only `server.js` committed — the unrelated blank-line change in `setup-db.js` was deliberately left uncommitted.
+
+**23.1 — Email verification page was dead JavaScript, locking out the first admin.**
+The inline `<script>` on `GET /api/verify-email` never closed its `onclick` function: the trailing `;});});` is fully consumed by `function(b)`, `.then(`, `function(r)`, and `.then(`, leaving nothing to close `onclick=function(){`. The whole block was a `SyntaxError: Unexpected end of input`, so the handler was never attached and the "Verifikasi sekarang" button did nothing. Since `POST /api/login` rejects `verified=false` accounts, **no admin could ever complete verification through that page** — the flow added back in §3 had been broken the whole time. This explains the still-unverified `muhammadsatria2412@gmail.com` row in the DB. Fix: append `};`. Confirmed by extracting the script from the route's real HTTP response and running `node --check` (fails before, passes after).
+
+**23.2 — Session-token hashing provided zero protection (found by `/code-review`).**
+`userFromToken()` had a "legacy session upgrade" path: on a hash miss it ran `UPDATE tokens SET token=sha256(cookie) WHERE token=cookie RETURNING ...`. Because the stored value *is* the hash H, an attacker who could read the `tokens` table — the exact threat the hashing was introduced for (backups, logs, DB console; see the comment added in commit `5d8bdcf`) — only had to send H itself as the cookie: `sha256(H)` misses, the raw-match then hits row `token = H`, and they are authenticated as admin. Two side effects: the `UPDATE` rewrote the row to `sha256(H)`, silently breaking the legitimate owner's session, and every junk cookie triggered an unauthenticated DB write.
+
+Removed the fallback entirely; matching is now hash-only. Trade-off accepted: pre-hashing sessions stop working and their owners must log in again — the DB did contain one such legacy row (a 48-hex raw token). Left an explicit comment warning against reintroducing the path.
+
+Verified against a running server: stored-hash-as-cookie → `401` (would have been `200` as admin); legacy raw token → `401`; a valid cookie (inserted as a temporary row, then deleted) → `200`. Deliberately did *not* run the pre-fix code against the real DB, since the vulnerable `UPDATE` would have mutated live token rows.
+
+## 24. Deployment status clarified
+
+User confirmed the site is **not yet deployed to Vercel** — corroborated by `YOUR-DOMAIN.example` still sitting in `sitemap.xml`/`robots.txt` and `.env` holding only `RESEND_API_KEY` (no `DATABASE_URL`; local Postgres via `db-config.json`). This reframes P1: `vercel.json` and `setup-db.js` are not live vulnerabilities but first-deploy landmines — on deploy they would produce 404s on every `/api/*` **and** serve `server.js`/`db.js` as static source, bypassing the `PUBLIC_FILES` allowlist built in commit `2bfc23a`. Likely root cause: `api/index.js` is referenced in the `server.js:719` comment but `git log --all -- api/` shows it was never created, and `vercel.json` has no `rewrites`. `server.js` already ends with `module.exports = handler`, so the fix should be small. Not yet acted on.
+
+## Files touched this session
+
+- `server.js` (verify-email inline script closure; removed raw-token match in `userFromToken`)
+- `conversation-log.md` (this entry)
+- Not committed: `setup-db.js` (pre-existing stray blank line, unrelated)
